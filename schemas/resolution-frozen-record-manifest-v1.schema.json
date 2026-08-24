@@ -1,0 +1,113 @@
+{
+  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-frozen-record-manifest-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resolution frozen record manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "transactionId",
+    "orderId",
+    "disputedLineItemIds",
+    "policyDigest",
+    "termsDigest",
+    "authorityRefs",
+    "includedArtifacts",
+    "excludedArtifacts"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "resolution-frozen-record-manifest-v1"
+    },
+    "transactionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "orderId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disputedLineItemIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "policyDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "termsDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "authorityRefs": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "includedArtifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactId",
+          "sha256",
+          "mediaType",
+          "source"
+        ],
+        "properties": {
+          "artifactId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "mediaType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "excludedArtifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactId",
+          "reason"
+        ],
+        "properties": {
+          "artifactId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "enum": [
+              "verifier_local_metadata",
+              "outside_claim_scope",
+              "duplicate"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

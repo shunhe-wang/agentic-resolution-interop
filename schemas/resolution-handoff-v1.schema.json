@@ -1,0 +1,370 @@
+{
+  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-handoff-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resolution handoff v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "handoffId",
+    "disputeId",
+    "nativeProtocol",
+    "transaction",
+    "roles",
+    "claim",
+    "merchantResponse",
+    "requestedRemedy",
+    "authority",
+    "policy",
+    "terms",
+    "frozenRecord",
+    "remedyCeilings",
+    "resolver",
+    "createdAt",
+    "expiresAt",
+    "nativeProof"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "resolution-handoff-v1"
+    },
+    "handoffId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disputeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nativeProtocol": {
+      "enum": [
+        "ucp",
+        "ap2",
+        "x402",
+        "a2a",
+        "agentic_checkout_acp",
+        "virtuals_acp",
+        "custom"
+      ]
+    },
+    "transaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transactionId",
+        "orderId",
+        "disputedLineItemIds"
+      ],
+      "properties": {
+        "transactionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "orderId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checkoutId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disputedLineItemIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claimant",
+        "respondent",
+        "recordIssuer",
+        "resolver",
+        "executor"
+      ],
+      "properties": {
+        "claimant": {
+          "type": "string",
+          "minLength": 1
+        },
+        "respondent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recordIssuer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resolver": {
+          "type": "string",
+          "minLength": 1
+        },
+        "executor": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claimId",
+        "claimType",
+        "artifactRef",
+        "artifactHash"
+      ],
+      "properties": {
+        "claimId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "claimType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifactRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifactHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "merchantResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "response",
+        "artifactRef",
+        "artifactHash"
+      ],
+      "properties": {
+        "response": {
+          "enum": [
+            "accepted",
+            "partially_accepted",
+            "denied",
+            "no_response"
+          ]
+        },
+        "artifactRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifactHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "requestedRemedy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "amountMinorUnits",
+        "action"
+      ],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3,12}$"
+        },
+        "amountMinorUnits": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "refund",
+            "release_to_claimant",
+            "release_to_respondent",
+            "allocate_by_award",
+            "replace_product",
+            "none"
+          ]
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bilateral",
+        "claimantAuthorityRef",
+        "respondentAuthorityRef",
+        "authorizationArtifactHash"
+      ],
+      "properties": {
+        "bilateral": {
+          "const": true
+        },
+        "claimantAuthorityRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "respondentAuthorityRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authorizationArtifactHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "digest"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "digest"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "frozenRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalization",
+        "digestAlgorithm",
+        "manifest",
+        "digest"
+      ],
+      "properties": {
+        "canonicalization": {
+          "const": "RFC8785"
+        },
+        "digestAlgorithm": {
+          "const": "SHA-256"
+        },
+        "manifest": {
+          "$ref": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-frozen-record-manifest-v1.schema.json"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "remedyCeilings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "currency",
+          "amountMinorUnits",
+          "action"
+        ],
+        "properties": {
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3,12}$"
+          },
+          "amountMinorUnits": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "refund",
+              "release_to_claimant",
+              "release_to_respondent",
+              "allocate_by_award",
+              "replace_product",
+              "none"
+            ]
+          }
+        }
+      }
+    },
+    "resolver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolverId",
+        "rulesetId",
+        "rulesVersion"
+      ],
+      "properties": {
+        "resolverId": {
+          "type": "string"
+        },
+        "rulesetId": {
+          "type": "string"
+        },
+        "rulesVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nativeProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactRef",
+        "sha256",
+        "verificationMethod"
+      ],
+      "properties": {
+        "artifactRef": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "verificationMethod": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

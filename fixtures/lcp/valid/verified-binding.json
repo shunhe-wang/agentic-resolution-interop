@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "experimental-agentic-resolution-lcp-binding-v1",
+  "lcpSpecVersion": "0.1.38",
+  "legalContext": {
+    "url": "https://resolver.example/.well-known/legal-context.json",
+    "sha256": "f5e185e24ab883e0d9b4325c0b12def7612383617cfaf3c74548f57811b6694b",
+    "byteLength": 567
+  },
+  "terms": {
+    "url": "https://resolver.example/legal/terms.md",
+    "atrHash": "0xc4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+    "sha256": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+    "byteLength": 275
+  },
+  "clause": {
+    "url": "https://resolver.example/legal/dispute-clause.md",
+    "clauseId": "sha256:0x073a0a1f99039d65cadcdbdd201eae64af935f38a7f0ab113b46a1b94d868ec9",
+    "sha256": "073a0a1f99039d65cadcdbdd201eae64af935f38a7f0ab113b46a1b94d868ec9",
+    "byteLength": 336
+  },
+  "rules": {
+    "id": "urn:example:agentic-resolution:rules:v1",
+    "version": "1.0.0",
+    "url": "https://resolver.example/legal/rules.md",
+    "sha256": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
+    "byteLength": 252
+  },
+  "catalog": {
+    "url": "https://resolver.example/.well-known/dispute-services.json",
+    "sha256": "c7b945d37059c63ee6c936593d28a078a9f1d5e451a915e49789f51eb70b96ef",
+    "byteLength": 1465,
+    "providerId": "urn:example:agentic-resolution:resolver",
+    "serviceId": "urn:example:agentic-resolution:service:v1",
+    "profile": "experimental-lcp-dispute-services-v0.1"
+  },
+  "disputeResolution": {
+    "method": "arbitration",
+    "jurisdiction": "US-NY",
+    "contact": "mailto:resolver@example.invalid"
+  },
+  "api": "https://resolver.example/v1/resolution-requests"
+}

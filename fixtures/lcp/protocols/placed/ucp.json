@@ -1,0 +1,22 @@
+{
+  "id": "checkout-neutral-001",
+  "policies": [
+    {
+      "type": "example.existing",
+      "description": {
+        "plain": "Preserve this policy."
+      }
+    },
+    {
+      "description": {
+        "plain": "Terms of sale for this order, identified by a Legal Context Protocol reference. The reference identifies the exact terms document; it is not itself the terms."
+      },
+      "url": "https://resolver.example/.well-known/legal-context.json",
+      "type": "com.integraledger.policy.legal_context",
+      "com.integraledger.legal_context": {
+        "type": "sha256",
+        "value": "0xc4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674"
+      }
+    }
+  ]
+}

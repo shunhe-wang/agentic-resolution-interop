@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "agentic-resolution-interop-corpus-v1",
+  "corpusVersion": "0.1.0",
+  "synthetic": true,
+  "validationTime": "2026-08-24T16:00:00.000Z",
+  "validJourney": "valid/lifecycle.json",
+  "authorization": {
+    "jws": "valid/resolution-authorization-v1.json",
+    "publicKeys": "valid/resolution-authorization-public-keys.json"
+  },
+  "lcpProfile": "../lcp/valid/verified-binding.json",
+  "ucpPressureTests": [
+    "../ucp/paths/escrow-held.json",
+    "../ucp/paths/post-settlement-merchant-refund.json"
+  ],
+  "ucpNegativeTests": [
+    {
+      "id": "swapped-executor",
+      "path": "../ucp/negative/swapped-executor.json",
+      "expectedReasonCode": "ucp_path_executor_mismatch"
+    },
+    {
+      "id": "swapped-receipt",
+      "path": "../ucp/negative/swapped-receipt.json",
+      "expectedReasonCode": "ucp_path_receipt_mismatch"
+    },
+    {
+      "id": "swapped-custody-evidence",
+      "path": "../ucp/negative/swapped-custody-evidence.json",
+      "expectedReasonCode": "ucp_path_custody_evidence_mismatch"
+    }
+  ],
+  "negatives": [
+    {
+      "id": "missing-frozen-record-digest",
+      "path": "negative/missing-frozen-record-digest.json",
+      "expectedReasonCode": "frozen_record_digest_missing"
+    },
+    {
+      "id": "changed-frozen-record",
+      "path": "negative/changed-frozen-record.json",
+      "expectedReasonCode": "frozen_record_digest_mismatch"
+    },
+    {
+      "id": "wrong-order-reference",
+      "path": "negative/wrong-order-reference.json",
+      "expectedReasonCode": "transaction_reference_mismatch"
+    },
+    {
+      "id": "wrong-line-item",
+      "path": "negative/wrong-line-item.json",
+      "expectedReasonCode": "disputed_line_reference_mismatch"
+    },
+    {
+      "id": "stale-policy",
+      "path": "negative/stale-policy.json",
+      "expectedReasonCode": "policy_digest_stale"
+    },
+    {
+      "id": "stale-terms",
+      "path": "negative/stale-terms.json",
+      "expectedReasonCode": "terms_digest_stale"
+    },
+    {
+      "id": "missing-party-authority",
+      "path": "negative/missing-party-authority.json",
+      "expectedReasonCode": "party_authority_missing"
+    },
+    {
+      "id": "remedy-above-ceiling",
+      "path": "negative/remedy-above-ceiling.json",
+      "expectedReasonCode": "remedy_above_ceiling"
+    },
+    {
+      "id": "disposition-other-record",
+      "path": "negative/disposition-other-record.json",
+      "expectedReasonCode": "disposition_record_mismatch"
+    },
+    {
+      "id": "superseded-operative",
+      "path": "negative/superseded-operative.json",
+      "expectedReasonCode": "superseded_disposition_operative"
+    },
+    {
+      "id": "supersession-cycle",
+      "path": "negative/supersession-cycle.json",
+      "expectedReasonCode": "supersession_cycle"
+    },
+    {
+      "id": "supersession-fork",
+      "path": "negative/supersession-fork.json",
+      "expectedReasonCode": "supersession_fork"
+    },
+    {
+      "id": "execution-other-disposition",
+      "path": "negative/execution-other-disposition.json",
+      "expectedReasonCode": "execution_disposition_mismatch"
+    },
+    {
+      "id": "execution-outside-authorization",
+      "path": "negative/execution-outside-authorization.json",
+      "expectedReasonCode": "execution_outside_authority"
+    },
+    {
+      "id": "completed-without-receipt",
+      "path": "negative/completed-without-receipt.json",
+      "expectedReasonCode": "execution_receipt_missing"
+    },
+    {
+      "id": "decision-as-execution",
+      "path": "negative/decision-as-execution.json",
+      "expectedReasonCode": "decision_not_execution"
+    }
+  ],
+  "identityInvariants": [
+    "Verifier-local observation metadata is excluded from stable handoff identity.",
+    "A superseding disposition does not overwrite its predecessor.",
+    "A disposition never proves execution.",
+    "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization."
+  ],
+  "contentDigest": "f5c5414b68c36c90157a1d9169ba01380259a76daa7a9245eeef95924b0baf21"
+}

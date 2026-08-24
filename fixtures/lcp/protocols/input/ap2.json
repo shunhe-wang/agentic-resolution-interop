@@ -1,0 +1,12 @@
+{
+  "kind": "message",
+  "messageId": "message-neutral-001",
+  "parts": [
+    {
+      "kind": "data",
+      "data": {
+        "ap2.mandates.CheckoutMandateSdJwt": "synthetic.ap2.mandate.bytes.must.remain.identical"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "kind": "message",
+  "messageId": "message-neutral-001",
+  "parts": [
+    {
+      "kind": "data",
+      "data": {
+        "ap2.mandates.CheckoutMandateSdJwt": "synthetic.ap2.mandate.bytes.must.remain.identical"
+      }
+    }
+  ],
+  "metadata": {
+    "legalContext": {
+      "type": "sha256",
+      "value": "0xc4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674"
+    }
+  }
+}

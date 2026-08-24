@@ -1,0 +1,9 @@
+{
+  "frozenRecordDigest": "b905a58d16da0a9792536826460ae562b0a2d30440a70b4c481d6c84af59bb67",
+  "handoffDigest": "4078b077470ce5e243ce4f0adb8c5f1555986e960d0bb0e3a4e532a2cac29450",
+  "dispositionDigests": {
+    "disposition-neutral-001": "904f765f3e6ee61bad7e0ddc31e18052c305eb6d66f0990a0f8bf5a222aaac3c",
+    "disposition-neutral-002": "659b6fe6385b36958b0910ba60ed21fbc16a126cb7bc5d8fb9e4a87282ba826d"
+  },
+  "authorizationArtifactHash": "25d2455c298f9b8d18ae0a9d44c4e255a5e553509aec0e2a0964106aa7026120"
+}

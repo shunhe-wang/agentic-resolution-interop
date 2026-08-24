@@ -1,0 +1,18 @@
+{
+  "x402Version": 2,
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "base-sepolia",
+      "maxAmountRequired": "5000",
+      "extra": {
+        "asset": "synthetic-usdc"
+      }
+    }
+  ],
+  "extensions": {
+    "exampleSibling": {
+      "preserved": true
+    }
+  }
+}

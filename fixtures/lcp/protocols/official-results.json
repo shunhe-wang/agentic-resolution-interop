@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "official-integra-placement-results-v1",
+  "integraPackageVersion": "0.12.1",
+  "lcpSpecVersion": "0.1.38",
+  "nodeEngine": ">=24",
+  "termsAtrHash": "0xc4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+  "ap2": {
+    "roundtrip": true,
+    "inputPure": true,
+    "mandateByteIdentical": true
+  },
+  "ucp": {
+    "roundtrip": true,
+    "existingPolicyPreserved": true
+  },
+  "x402": {
+    "roundtrip": true,
+    "siblingExtensionPreserved": true,
+    "existingExtraPreserved": true,
+    "officialCanonicalReferencePrecedenceObserved": true,
+    "experimentalStrictReaderRejectedConflicts": true
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "x402Version": 2,
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "base-sepolia",
+      "maxAmountRequired": "5000",
+      "extra": {
+        "asset": "synthetic-usdc",
+        "atrHash": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "legalContextUrl": "https://resolver.example/.well-known/legal-context.json"
+      }
+    }
+  ],
+  "extensions": {
+    "exampleSibling": {
+      "preserved": true
+    },
+    "legalContext": {
+      "info": {
+        "type": "sha256",
+        "value": "0xc4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+        "legalContextUrl": "https://resolver.example/.well-known/legal-context.json"
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "legalContext — x402 extension info",
+        "description": "The `info` payload of the `legalContext` x402 extension at challenge time: a Legal Context Protocol reference to the terms governing this transaction, plus the URL the terms document can be fetched from. The reference identifies the exact terms document; it is not the terms. This describes a technology harness and asserts nothing about whether any agreement is lawful, sound or enforceable.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "value",
+          "legalContextUrl"
+        ],
+        "properties": {
+          "type": {
+            "description": "The digest algorithm over the terms document. `sha256` is the only value this version defines.",
+            "type": "string",
+            "const": "sha256"
+          },
+          "value": {
+            "description": "The atrHash — SHA-256 of the terms document, lowercase hex with an 0x prefix.",
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "legalContextUrl": {
+            "description": "Where the terms document this hash covers can be fetched. A reader verifies the document against `value`; the URL is a locator and never the authority.",
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    }
+  }
+}

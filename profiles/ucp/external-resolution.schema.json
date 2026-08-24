@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://peoplescourt.ai/standards/ucp/dispute-resolution/2026-08-23/schema.json",
+  "name": "ai.peoplescourt.shopping.dispute_resolution",
+  "version": "2026-08-23",
+  "extends": "dev.ucp.shopping.order",
+  "title": "People's Court UCP External Dispute Resolution Extension",
+  "description": "A vendor extension that carries neutral resolution lifecycle references on a UCP order. It does not create or imply resolution authority.",
+  "$defs": {
+    "platform_schema": {
+      "allOf": [{ "$ref": "https://ucp.dev/2026-04-08/schemas/capability.json#/$defs/platform_schema" }],
+      "properties": {
+        "extends": { "const": "dev.ucp.shopping.order" }
+      }
+    },
+    "business_schema": {
+      "allOf": [{ "$ref": "https://ucp.dev/2026-04-08/schemas/capability.json#/$defs/business_schema" }],
+      "properties": {
+        "extends": { "const": "dev.ucp.shopping.order" }
+      }
+    },
+    "response_schema": {
+      "allOf": [{ "$ref": "https://ucp.dev/2026-04-08/schemas/capability.json#/$defs/response_schema" }],
+      "properties": {
+        "extends": { "const": "dev.ucp.shopping.order" }
+      }
+    },
+    "dev.ucp.shopping.order": {
+      "allOf": [
+        { "$ref": "https://ucp.dev/2026-04-08/schemas/shopping/order.json" },
+        {
+          "type": "object",
+          "required": ["external_resolution"],
+          "properties": {
+            "external_resolution": { "$ref": "#/$defs/externalResolution" }
+          }
+        }
+      ]
+    },
+    "artifactLink": {
+      "type": "object",
+      "required": ["artifact_ref"],
+      "properties": {
+        "artifact_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "handoffLink": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        { "$ref": "#/$defs/artifactLink" },
+        {
+          "type": "object",
+          "required": ["handoff_id"],
+          "properties": {
+            "handoff_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        }
+      ]
+    },
+    "dispositionLink": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        { "$ref": "#/$defs/artifactLink" },
+        {
+          "type": "object",
+          "required": ["disposition_id", "review_state"],
+          "properties": {
+            "disposition_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "review_state": {
+              "enum": ["draft", "served", "final", "superseded", "vacated"]
+            }
+          }
+        }
+      ]
+    },
+    "executionLink": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        { "$ref": "#/$defs/artifactLink" },
+        {
+          "type": "object",
+          "required": ["execution_id", "disposition_id", "status"],
+          "properties": {
+            "execution_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "disposition_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "status": {
+              "enum": ["not_attempted", "pending", "completed", "failed", "blocked", "unknown_outcome"]
+            }
+          }
+        }
+      ]
+    },
+    "externalResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["extension", "version", "handoffs", "dispositions", "executions"],
+      "properties": {
+        "extension": {
+          "const": "ai.peoplescourt.shopping.dispute_resolution"
+        },
+        "version": {
+          "const": "2026-08-23"
+        },
+        "handoffs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/handoffLink" }
+        },
+        "dispositions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/dispositionLink" }
+        },
+        "executions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/executionLink" }
+        }
+      }
+    }
+  }
+}

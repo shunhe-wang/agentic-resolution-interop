@@ -1,0 +1,11 @@
+{
+  "id": "checkout-neutral-001",
+  "policies": [
+    {
+      "type": "example.existing",
+      "description": {
+        "plain": "Preserve this policy."
+      }
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-execution-receipt-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resolution execution receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "executionId",
+    "dispositionId",
+    "dispositionDigest",
+    "action",
+    "currency",
+    "amountMinorUnits",
+    "source",
+    "destination",
+    "nativeTransactionReference",
+    "status",
+    "providerRef",
+    "recordedAt",
+    "receiptProof"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "resolution-execution-receipt-v1"
+    },
+    "executionId": {
+      "type": "string"
+    },
+    "dispositionId": {
+      "type": "string"
+    },
+    "dispositionDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "refund",
+        "release_to_claimant",
+        "release_to_respondent",
+        "allocate_by_award",
+        "replace_product",
+        "none"
+      ]
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3,12}$"
+    },
+    "amountMinorUnits": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "source": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "nativeTransactionReference": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "not_attempted",
+        "pending",
+        "completed",
+        "failed",
+        "blocked",
+        "unknown_outcome"
+      ]
+    },
+    "providerRef": {
+      "type": "string"
+    },
+    "recordedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "receiptProof": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "artifactRef",
+        "sha256",
+        "verificationStatus"
+      ],
+      "properties": {
+        "artifactRef": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "verificationStatus": {
+          "enum": [
+            "passed",
+            "failed"
+          ]
+        }
+      }
+    },
+    "failureCode": {
+      "type": "string"
+    }
+  }
+}

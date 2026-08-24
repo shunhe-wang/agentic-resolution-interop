@@ -1,0 +1,45 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "status": "success",
+    "capabilities": {
+      "dev.ucp.shopping.order": [
+        {
+          "version": "2026-04-08"
+        }
+      ]
+    }
+  },
+  "id": "order-neutral-001",
+  "checkout_id": "checkout-neutral-001",
+  "permalink_url": "https://merchant.example.test/orders/order-neutral-001",
+  "line_items": [
+    {
+      "id": "line-002",
+      "item": {
+        "id": "item-002",
+        "title": "Undelivered synthetic item",
+        "price": 2500
+      },
+      "quantity": {
+        "original": 1,
+        "total": 1,
+        "fulfilled": 0
+      },
+      "totals": [
+        {
+          "type": "total",
+          "amount": 2500
+        }
+      ],
+      "status": "processing"
+    }
+  ],
+  "currency": "USD",
+  "totals": [
+    {
+      "type": "total",
+      "amount": 2500
+    }
+  ]
+}

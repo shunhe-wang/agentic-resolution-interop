@@ -1,0 +1,22 @@
+[
+  {
+    "crv": "Ed25519",
+    "x": "OHzVteBixjHKn2rV3OHMYbmCd2f8KGWtwrcGiGJ9y4I",
+    "kty": "OKP",
+    "kid": "claimant-key-1",
+    "principalId": "principal:buyer:001",
+    "role": "claimant",
+    "alg": "EdDSA",
+    "use": "sig"
+  },
+  {
+    "crv": "Ed25519",
+    "x": "_FHR1eoNXZkjONcpSzj7sNjuA1RYAVvQG405pik-aTI",
+    "kty": "OKP",
+    "kid": "respondent-key-1",
+    "principalId": "principal:merchant:001",
+    "role": "respondent",
+    "alg": "EdDSA",
+    "use": "sig"
+  }
+]

@@ -1,0 +1,113 @@
+{
+  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-disposition-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resolution disposition v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "dispositionId",
+    "dispositionDigest",
+    "handoffDigest",
+    "transactionId",
+    "frozenRecordDigest",
+    "outcome",
+    "authorizedRemedy",
+    "issuedAt",
+    "issuerRef",
+    "reviewState",
+    "signedArtifact"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "resolution-disposition-v1"
+    },
+    "dispositionId": {
+      "type": "string"
+    },
+    "dispositionDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "handoffDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "transactionId": {
+      "type": "string"
+    },
+    "frozenRecordDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "authorizedRemedy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "amountMinorUnits",
+        "action"
+      ],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3,12}$"
+        },
+        "amountMinorUnits": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "refund",
+            "release_to_claimant",
+            "release_to_respondent",
+            "allocate_by_award",
+            "replace_product",
+            "none"
+          ]
+        }
+      }
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "issuerRef": {
+      "type": "string"
+    },
+    "reviewState": {
+      "enum": [
+        "draft",
+        "served",
+        "final",
+        "superseded",
+        "vacated"
+      ]
+    },
+    "supersedesDispositionId": {
+      "type": "string"
+    },
+    "signedArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactRef",
+        "sha256"
+      ],
+      "properties": {
+        "artifactRef": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

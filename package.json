@@ -1,0 +1,36 @@
+{
+  "name": "agentic-resolution-interop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Protocol-neutral conformance corpus for bounded agentic-commerce dispute resolution.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "fixture:build": "tsx scripts/build-corpus.ts",
+    "placements:write": "node scripts/official-placements.mjs --write",
+    "placements:check": "node scripts/official-placements.mjs",
+    "seal:write": "node scripts/seal-corpus.mjs --write",
+    "seal:check": "node scripts/seal-corpus.mjs",
+    "test": "node --import tsx --test test/*.test.ts",
+    "audit:public": "node scripts/public-export-audit.mjs",
+    "check": "npm run build && npm test && npm run placements:check && npm run seal:check && npm run audit:public"
+  },
+  "dependencies": {
+    "@integraledger/lcp-discovery": "0.12.1",
+    "@integraledger/lcp-kernel": "0.12.1",
+    "@integraledger/lcp-placement-ap2": "0.12.1",
+    "@integraledger/lcp-placement-ucp": "0.12.1",
+    "@integraledger/lcp-placement-x402": "0.12.1",
+    "canonicalize": "4.0.0",
+    "jose": "6.2.10"
+  },
+  "devDependencies": {
+    "@types/node": "26.3.0",
+    "tsx": "4.23.12",
+    "typescript": "7.0.2"
+  }
+}

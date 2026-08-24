@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-lifecycle-v1.schema.json",
+  "title": "Protocol-neutral resolution lifecycle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["handoff", "dispositions", "operativeDispositionId", "executions", "expected"],
+  "properties": {
+    "handoff": {
+      "$ref": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-handoff-v1.schema.json"
+    },
+    "dispositions": {
+      "type": "array",
+      "items": {
+        "$ref": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-disposition-v1.schema.json"
+      }
+    },
+    "operativeDispositionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "executions": {
+      "type": "array",
+      "items": {
+        "$ref": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-execution-receipt-v1.schema.json"
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transactionId", "orderId", "disputedLineItemIds", "currentPolicyDigest", "currentTermsDigest"],
+      "properties": {
+        "transactionId": { "type": "string", "minLength": 1 },
+        "orderId": { "type": "string", "minLength": 1 },
+        "disputedLineItemIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "currentPolicyDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "currentTermsDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "ref": {
+    "type": "sha256",
+    "value": "0xc4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674"
+  },
+  "legalContextUrl": "https://resolver.example/.well-known/legal-context.json",
+  "ap2Mandate": "synthetic.ap2.mandate.bytes.must.remain.identical"
+}

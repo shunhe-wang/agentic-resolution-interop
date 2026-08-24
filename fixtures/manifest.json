@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "agentic-resolution-interop-seal-v1",
+  "hashAlgorithm": "SHA-256",
+  "canonicalization": "RFC8785",
+  "synthetic": true,
+  "files": [
+    {
+      "path": "core/manifest.json",
+      "sha256": "17960e583aa629e9f837a425d291e06e946aaabb7c0f89d17533c3f2187e34ae",
+      "bytes": 4009
+    },
+    {
+      "path": "core/negative/changed-frozen-record.json",
+      "sha256": "793ab65bd37f12efdbd132cc5cd323c0139829a4757088859e921de9bdd11810",
+      "bytes": 8974
+    },
+    {
+      "path": "core/negative/completed-without-receipt.json",
+      "sha256": "7a5e22015b953cb56d7e53b7b0bce189dcf856b641290ed6f584cbe09210215c",
+      "bytes": 8780
+    },
+    {
+      "path": "core/negative/decision-as-execution.json",
+      "sha256": "724bc9ae96dcf75eb24e093e5c5b668ea73c196126fb6047c5b77fe6d10e4064",
+      "bytes": 8959
+    },
+    {
+      "path": "core/negative/disposition-other-record.json",
+      "sha256": "69683f1a056419a4687374b3ba7db1a3bc153cf52f3a1101e3cead1a9d17c4d1",
+      "bytes": 8975
+    },
+    {
+      "path": "core/negative/execution-other-disposition.json",
+      "sha256": "8621863a8ea2709bcaafbe25c618cdf82a7ca8d1696773d2e2e5800be5dcb7c6",
+      "bytes": 8981
+    },
+    {
+      "path": "core/negative/execution-outside-authorization.json",
+      "sha256": "446929a071125429087baf5aae9251b117591be9b6af8eca660e9fbe4626d99c",
+      "bytes": 8982
+    },
+    {
+      "path": "core/negative/missing-frozen-record-digest.json",
+      "sha256": "714958d976df278cb7648abf85a78873c67bcd6bc4293e3c45b5d7d04b1c03f5",
+      "bytes": 8916
+    },
+    {
+      "path": "core/negative/missing-party-authority.json",
+      "sha256": "0aab3747864444056e25fc5f62534bf3b40e49b37ae03e400986a6c7bd9f588a",
+      "bytes": 8948
+    },
+    {
+      "path": "core/negative/remedy-above-ceiling.json",
+      "sha256": "15e5e168845600c50e82fe1a7c577ef55fa2598ac5b32297dd72362ba04657d3",
+      "bytes": 8964
+    },
+    {
+      "path": "core/negative/stale-policy.json",
+      "sha256": "47e3757286466c9e7bd9597c9d480bc351c9c3f5be9c146c1a71d24f0072347c",
+      "bytes": 8955
+    },
+    {
+      "path": "core/negative/stale-terms.json",
+      "sha256": "7bde766cd9f240ce951eebe34e98714ad0d7d82201194a35c618da0c50dc372e",
+      "bytes": 8953
+    },
+    {
+      "path": "core/negative/superseded-operative.json",
+      "sha256": "58cf2bae6d69c79eea164d95e5a50ec73ca5a4e4e8d6a032ee5bd72132ebfa1e",
+      "bytes": 8976
+    },
+    {
+      "path": "core/negative/supersession-cycle.json",
+      "sha256": "7aa49d12ab9fc926adecdc54db7e385ffcc9e1fff3dec8995b9228ad1c55cbfb",
+      "bytes": 9022
+    },
+    {
+      "path": "core/negative/supersession-fork.json",
+      "sha256": "9fba513b1a4b7bb97bfc9e8c5318b1274b48211b88b22e6ec58222e254d4e3e7",
+      "bytes": 9963
+    },
+    {
+      "path": "core/negative/wrong-line-item.json",
+      "sha256": "4656b518a5e9e05f5a8b7688a0cc67de816f19a6808719155159ecb8e1bd39bc",
+      "bytes": 8971
+    },
+    {
+      "path": "core/negative/wrong-order-reference.json",
+      "sha256": "9298e4811e2e9b9ec8b3c1143a441e1e1829aed3b05aa86f00a8ba78548995ea",
+      "bytes": 8969
+    },
+    {
+      "path": "core/valid/expected-digests.json",
+      "sha256": "2ed9b64093ea27ccccd5ebea1abb2a68de779ee5e7175e7d99c1cf8bc228d91c",
+      "bytes": 509
+    },
+    {
+      "path": "core/valid/lifecycle.json",
+      "sha256": "b7924981f93a42478f1031792080a3935be36e73f7f011e7eb94b584447264a0",
+      "bytes": 8419
+    },
+    {
+      "path": "core/valid/resolution-authorization-public-keys.json",
+      "sha256": "75624a295a90a9ef7905c8b1e082fd6dbaed94ee991363ce561e7fa4e4ce167f",
+      "bytes": 484
+    },
+    {
+      "path": "core/valid/resolution-authorization-v1.json",
+      "sha256": "b8fa3317aa66a070b281d126975743b9ba05aca869c6d759ad94ba7f23cf2de4",
+      "bytes": 2225
+    },
+    {
+      "path": "lcp/artifacts/dispute-clause.md",
+      "sha256": "073a0a1f99039d65cadcdbdd201eae64af935f38a7f0ab113b46a1b94d868ec9",
+      "bytes": 336
+    },
+    {
+      "path": "lcp/artifacts/dispute-services.json",
+      "sha256": "c7b945d37059c63ee6c936593d28a078a9f1d5e451a915e49789f51eb70b96ef",
+      "bytes": 1465
+    },
+    {
+      "path": "lcp/artifacts/legal-context.json",
+      "sha256": "f5e185e24ab883e0d9b4325c0b12def7612383617cfaf3c74548f57811b6694b",
+      "bytes": 567
+    },
+    {
+      "path": "lcp/artifacts/rules.md",
+      "sha256": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
+      "bytes": 252
+    },
+    {
+      "path": "lcp/artifacts/terms.md",
+      "sha256": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+      "bytes": 275
+    },
+    {
+      "path": "lcp/protocols/input/ap2.json",
+      "sha256": "58495ddf95f4616db01b6c61d245f2da0e2cbce31e3d5c32fa45178f7b8bd20d",
+      "bytes": 235
+    },
+    {
+      "path": "lcp/protocols/input/ucp.json",
+      "sha256": "cdb58cb51a8c0b25eeb2fcc8cfb69666cfa2e2ec7b868f4cabf9b42b79a3666d",
+      "bytes": 174
+    },
+    {
+      "path": "lcp/protocols/input/x402.json",
+      "sha256": "b41d7c8058db6a0eed0b912ed44a726d175384ca8ed069d8ae2e44bdf2e65f36",
+      "bytes": 284
+    },
+    {
+      "path": "lcp/protocols/negative/x402-reference-conflict.json",
+      "sha256": "037bbb4ccfbde4fea07b48801dc14e19bc012c557836da294c9e7fafcb4ebc76",
+      "bytes": 2194
+    },
+    {
+      "path": "lcp/protocols/official-results.json",
+      "sha256": "74fa299b923ef63b463eaa320127a7ecfbe5af7860beae4adaaee3322688cb76",
+      "bytes": 639
+    },
+    {
+      "path": "lcp/protocols/placed/ap2.json",
+      "sha256": "afbafff62d51ae97b157f8193b8f2255c7787c35e30c699a652b6ea53d6bf679",
+      "bytes": 392
+    },
+    {
+      "path": "lcp/protocols/placed/ucp.json",
+      "sha256": "6a9d865786abe1a5f5fae3e5ff206afa15e1420a31594d2098e9cb0a4c244034",
+      "bytes": 688
+    },
+    {
+      "path": "lcp/protocols/placed/x402.json",
+      "sha256": "05bdf82c478b8b11e1d2784c5c02d0d816705ea3fa379d7dc6ca0826979b7be1",
+      "bytes": 2194
+    },
+    {
+      "path": "lcp/protocols/placement-input.json",
+      "sha256": "8ce6df4612e14320dc24a779899d07de8d1203f91cc93a2f5ddba8a065259e83",
+      "bytes": 272
+    },
+    {
+      "path": "lcp/valid/verified-binding.json",
+      "sha256": "a30e66a5abf0d9beb0115635e1e89ef2a70b023bfc9f011026822d7d53ae2f50",
+      "bytes": 1669
+    },
+    {
+      "path": "ucp/negative/swapped-custody-evidence.json",
+      "sha256": "891ea109ce9219f497434cae22fc4811b1f6d0f550c81e590597d62a4ed26f97",
+      "bytes": 14419
+    },
+    {
+      "path": "ucp/negative/swapped-executor.json",
+      "sha256": "a94c5e0e5f348414f952bf2c64a6a501cfd987c47bc5c5d85915510cd99dfd9b",
+      "bytes": 14367
+    },
+    {
+      "path": "ucp/negative/swapped-receipt.json",
+      "sha256": "8728b27fbcfac2b63a771872c571017a202e4696dcbc6923802ca63a86ae2ddd",
+      "bytes": 14367
+    },
+    {
+      "path": "ucp/paths/escrow-held.json",
+      "sha256": "fd4284f77e3715cfdd4dece83617090f59ca0e3db16dcec93ae990db535550b1",
+      "bytes": 13544
+    },
+    {
+      "path": "ucp/paths/post-settlement-merchant-refund.json",
+      "sha256": "8ffbd6ad53c69fcbffea29bcfbdc3b1e1ceaf71ee122c1b5af2daeef2ddbd422",
+      "bytes": 14946
+    },
+    {
+      "path": "ucp/source/order.json",
+      "sha256": "11b7e291dd2a1b5ed9d93f2babe2814ce68fdca15e65c430861fc16ceefb2f72",
+      "bytes": 842
+    }
+  ]
+}

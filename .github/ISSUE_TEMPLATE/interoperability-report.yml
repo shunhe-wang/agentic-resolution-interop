@@ -1,0 +1,40 @@
+name: Interoperability report
+description: Report a representational loss or conformance mismatch from an independent implementation.
+title: "[interop] "
+labels: [interoperability]
+body:
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Protocol-neutral core
+        - UCP escrow-held
+        - UCP post-settlement refund
+        - LCP legal context
+        - AP2 placement
+        - x402 placement
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Exact mismatch
+      description: Identify the field, digest, role, amount, authority, supersession edge, or receipt status that could not be represented exactly.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide commands and synthetic inputs only.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: I did not include secrets, personal data, live payment artifacts, confidential records, or a suspected vulnerability.
+          required: true
