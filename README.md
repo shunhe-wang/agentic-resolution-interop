@@ -17,9 +17,9 @@ npm ci
 npm run check
 ```
 
-The check builds the TypeScript, runs the lifecycle and security vectors, verifies official Integra LCP placement behavior for UCP, AP2, and x402, checks the corpus seal, and audits the public export boundary.
+The check builds the TypeScript, runs the lifecycle, adapter, and security vectors, verifies official Integra LCP placement behavior for UCP, AP2, and x402, checks the corpus seal, and audits the public export boundary.
 
-Expected result: 14 tests pass, 16 negative lifecycle vectors and three UCP path negatives produce their declared reason codes, both UCP pressure-test paths remain distinct, and 42 fixture files match the committed seal.
+Expected result: 24 tests pass, 16 negative lifecycle vectors, eight Integra adapter negatives, and three UCP path negatives produce their declared reason codes, both UCP pressure-test paths remain distinct, and 48 fixture files match the committed seal.
 
 ## Start with these public fixtures
 
@@ -28,6 +28,9 @@ Expected result: 14 tests pass, 16 negative lifecycle vectors and three UCP path
 - [Escrow-held UCP path](fixtures/ucp/paths/escrow-held.json)
 - [Post-settlement merchant-refund UCP path](fixtures/ucp/paths/post-settlement-merchant-refund.json)
 - [Verified LCP legal-context binding](fixtures/lcp/valid/verified-binding.json)
+- [Integra-to-resolution adapter input](fixtures/lcp/integra/valid/adapter-input.json)
+- [Frozen resolution handoff produced by the adapter](fixtures/lcp/integra/valid/resolution-handoff.json)
+- [Integra adapter negative vectors](fixtures/lcp/integra/negative-vectors.json)
 - [Official Integra placement results](fixtures/lcp/protocols/official-results.json)
 - [Portable JSON Schemas](schemas/resolution-lifecycle-v1.schema.json)
 - [Whole-corpus seal](fixtures/expected-seal.txt)
@@ -73,6 +76,10 @@ The LCP profile verifies exact caller-supplied terms, clause, rules, catalog, an
 
 It uses the official Integra packages to exercise AP2, UCP, and x402 placement and extraction.
 
+The post-verification Integra adapter consumes a supplied mechanical `VerificationReport`, re-verifies the supplied evidence CAR with the official evidence package, verifies the exact two-signature resolution authorization, and freezes all three artifacts into one resolver handoff. It does not rerun live verification ports or authenticate who produced the report; the integrating application owns that trust decision.
+
+See the [adapter mapping and trust boundary](adapters/integra-resolution-handoff/README.md).
+
 The AP2 check proves that adding the LCP carrier leaves the opaque mandate bytes identical, not that the native AP2 mandate is itself valid.
 
 The x402 strict reader is an experimental fail-closed rule for conflicting duplicate legal-context references, not current official Integra behavior.
@@ -85,7 +92,7 @@ This repository does not duplicate it.
 
 | Surface | Version or status |
 |---|---|
-| Repository | `0.1.0` |
+| Repository | `0.2.0` |
 | Corpus schema | `agentic-resolution-interop-corpus-v1` |
 | LCP specification reported by Integra | `0.1.38` |
 | Integra packages | `0.12.1` |

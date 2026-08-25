@@ -16,6 +16,14 @@ The authorization verifier requires distinct claimant and respondent EdDSA signa
 
 Applications still own signer authorization, revocation, key rotation, principal identity, native protocol verification, and legal validity.
 
+## Supplied Integra report boundary
+
+The Integra adapter validates the contents and canonical bytes of a supplied mechanical verification report, but a report is not signed by this adapter and its producer identity is not authenticated here.
+
+Only call the adapter after obtaining the report from a trusted verification process. Freezing its digest proves which report was used; it does not prove who ran the verifier or that the adapter reran the report's live ports.
+
+The evidence CAR is independently checked for content integrity, declared-root agreement, and the required RCS-4 roles. That check establishes package integrity and completeness at the declared role level, not the truth, legal weight, or admissibility of each artifact.
+
 ## Canonicalization
 
 Stable JSON identities use RFC 8785 through the Apache-2.0 `canonicalize` package and SHA-256.

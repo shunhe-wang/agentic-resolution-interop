@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "integra-resolution-handoff-negative-vectors-v1",
+  "baseInput": "valid/adapter-input.json",
+  "vectors": [
+    {
+      "id": "unverified-report",
+      "mutation": "Set verificationReport.verified to false.",
+      "expectedErrorCode": "integra_report_unverified"
+    },
+    {
+      "id": "malformed-report",
+      "mutation": "Replace the report with an object that omits its required runtime shape.",
+      "expectedErrorCode": "integra_report_shape_invalid"
+    },
+    {
+      "id": "missing-evidence-role",
+      "mutation": "Rebuild the CAR without the authority chain role.",
+      "expectedErrorCode": "integra_evidence_roles_missing"
+    },
+    {
+      "id": "bundle-root-mismatch",
+      "mutation": "Replace evidenceBundle.root without changing the CAR.",
+      "expectedErrorCode": "integra_evidence_root_mismatch"
+    },
+    {
+      "id": "one-signature-authorization",
+      "mutation": "Remove either signature from the bilateral JWS.",
+      "expectedErrorCode": "authorization_signatures_invalid"
+    },
+    {
+      "id": "changed-terms",
+      "mutation": "Change draft.terms.digest without changing the signed authorization.",
+      "expectedErrorCode": "handoff_binding_mismatch"
+    },
+    {
+      "id": "missing-legal-artifact",
+      "mutation": "Remove the exact catalog artifact from includedArtifacts.",
+      "expectedErrorCode": "handoff_legal_artifact_missing"
+    },
+    {
+      "id": "remedy-above-authorization",
+      "mutation": "Set requestedRemedy.amountMinorUnits to 5001.",
+      "expectedErrorCode": "remedy_outside_authorization"
+    }
+  ]
+}

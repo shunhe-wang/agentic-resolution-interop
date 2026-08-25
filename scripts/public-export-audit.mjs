@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FIXTURES = path.join(ROOT, "fixtures");
 const TEXT_EXTENSIONS = new Set([".json", ".md", ".ts", ".mjs", ".yml", ".yaml", ".txt"]);
+const PROHIBITED_PERSONAL_METADATA = new RegExp(["gmail", "\\.com|lerler", "wang"].join(""), "i");
 
 function walk(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -33,12 +34,18 @@ for (const file of walk(FIXTURES)) {
 }
 
 for (const file of walk(ROOT)) {
-  if (!TEXT_EXTENSIONS.has(path.extname(file))) continue;
-  const text = fs.readFileSync(file, "utf8");
+  const text = fs.readFileSync(file).toString("utf8");
+  const relative = path.relative(ROOT, file);
   assert.doesNotMatch(text, /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/, `${path.relative(ROOT, file)} contains a private key block`);
   assert.doesNotMatch(text, /(?:gho|ghp|github_pat)_[A-Za-z0-9_]{20,}/, `${path.relative(ROOT, file)} contains a GitHub token shape`);
+  assert.doesNotMatch(text, /"d"\s*:/, `${relative} contains private JWK material`);
+  assert.doesNotMatch(text, /\/Users\/|[A-Za-z]:\\Users\\/, `${relative} contains a local absolute path`);
+  assert.doesNotMatch(text, PROHIBITED_PERSONAL_METADATA, `${relative} contains prohibited personal commit or account metadata`);
+  if (relative.startsWith(`fixtures${path.sep}lcp${path.sep}`)) {
+    assert.doesNotMatch(text, /people'?s[ -]?court|peoples-court|facet|ai\.peoplescourt\./i, `${relative} must remain provider-neutral`);
+  }
 }
 
 const coreManifest = JSON.parse(fs.readFileSync(path.join(FIXTURES, "core/manifest.json"), "utf8"));
 assert.equal(coreManifest.synthetic, true);
-console.log("public export audit passed: neutral core/LCP fixtures, governed UCP namespace only, and no private JWKs, tokens, private-key blocks, or local paths");
+console.log("public export audit passed: neutral core/LCP fixtures, governed UCP namespace only, and no private JWKs, tokens, private-key blocks, personal metadata, or local paths in text or binary files");

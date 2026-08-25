@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "core/manifest.json",
-      "sha256": "17960e583aa629e9f837a425d291e06e946aaabb7c0f89d17533c3f2187e34ae",
-      "bytes": 4009
+      "sha256": "c0314d91e4e71597ac63a738e315fb7d14c681418ca3486f216baeed76e6ccc6",
+      "bytes": 4451
     },
     {
       "path": "core/negative/changed-frozen-record.json",
@@ -133,6 +133,36 @@
       "path": "lcp/artifacts/terms.md",
       "sha256": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
       "bytes": 275
+    },
+    {
+      "path": "lcp/integra/artifacts/integra-evidence-bundle.car",
+      "sha256": "c7af4f44e8774fdb26ea80dc221fd725fd197b3f4f7c8f1565d9d68b42f7d192",
+      "bytes": 1540
+    },
+    {
+      "path": "lcp/integra/artifacts/integra-verification-report.json",
+      "sha256": "c674dbfd9d5ed7b45d906452680d0fc07f18a9ec7e31c41c93d3da638d9c239d",
+      "bytes": 709
+    },
+    {
+      "path": "lcp/integra/artifacts/resolution-authorization-v1.jws.json",
+      "sha256": "25d2455c298f9b8d18ae0a9d44c4e255a5e553509aec0e2a0964106aa7026120",
+      "bytes": 2160
+    },
+    {
+      "path": "lcp/integra/negative-vectors.json",
+      "sha256": "db556a47550f0f0396a007de140fa591166f757f48b0ed203434a3e6fc204887",
+      "bytes": 1603
+    },
+    {
+      "path": "lcp/integra/valid/adapter-input.json",
+      "sha256": "5977e1b9534c216339b9e7cc441a3ff49a83f8422cfc94d64acc71f9ffa9b061",
+      "bytes": 4841
+    },
+    {
+      "path": "lcp/integra/valid/resolution-handoff.json",
+      "sha256": "60acbe989c347b1024b0817225b47f90dd39e7b83cd654712255ea8251e2b172",
+      "bytes": 6009
     },
     {
       "path": "lcp/protocols/input/ap2.json",

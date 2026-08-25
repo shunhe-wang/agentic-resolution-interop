@@ -29,6 +29,19 @@ It must reject duplicate JSON keys, invalid UTF-8, excessive artifact sizes, exc
 
 It must not infer resolution authority from the presence of an LCP reference.
 
+## Integra adapter behavior
+
+A conforming Integra resolver-handoff adapter must:
+
+1. reject an unverified, insufficient-class, failed, incomplete, or future-dated mechanical report;
+2. verify the supplied evidence CAR, require its declared root to match, and require every RCS-4 evidence role;
+3. verify two distinct claimant and respondent signatures over the exact transaction and legal context;
+4. reject draft parties, terms, policy, claim scope, or remedy amounts outside that authorization;
+5. include the canonical report, exact CAR, exact bilateral JWS, and every declared legal-context artifact digest in the frozen manifest; and
+6. reproduce the committed handoff and the declared adapter error codes.
+
+Report-producer authentication and live-port execution are preconditions, not claims of adapter conformance.
+
 ## Official placement behavior
 
 The committed placement outputs are reproduced by Integra packages `0.12.1` under Node.js 24.

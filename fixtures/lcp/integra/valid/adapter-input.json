@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "integra-resolution-handoff-input-fixture-v1",
+  "synthetic": true,
+  "draft": {
+    "schemaVersion": "resolution-handoff-v1",
+    "handoffId": "handoff-neutral-001",
+    "disputeId": "dispute-neutral-001",
+    "nativeProtocol": "ucp",
+    "transaction": {
+      "transactionId": "tx-neutral-001",
+      "orderId": "order-neutral-001",
+      "checkoutId": "checkout-neutral-001",
+      "disputedLineItemIds": [
+        "line-002"
+      ]
+    },
+    "roles": {
+      "claimant": "principal:buyer:001",
+      "respondent": "principal:merchant:001",
+      "recordIssuer": "issuer:synthetic-merchant-ledger",
+      "resolver": "urn:example:agentic-resolution:resolver",
+      "executor": "executor:synthetic-refund-service"
+    },
+    "claim": {
+      "claimId": "claim-neutral-001",
+      "claimType": "non_delivery",
+      "artifactRef": "claim.json",
+      "artifactHash": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "merchantResponse": {
+      "response": "denied",
+      "artifactRef": "merchant-response.json",
+      "artifactHash": "5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "requestedRemedy": {
+      "action": "refund",
+      "currency": "USD",
+      "amountMinorUnits": "2500"
+    },
+    "policy": {
+      "version": "1.0.0",
+      "digest": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19"
+    },
+    "terms": {
+      "version": "lcp-0.1.38",
+      "digest": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674"
+    },
+    "resolver": {
+      "resolverId": "urn:example:agentic-resolution:resolver",
+      "rulesetId": "urn:example:agentic-resolution:rules:v1",
+      "rulesVersion": "1.0.0"
+    }
+  },
+  "verificationReport": "../artifacts/integra-verification-report.json",
+  "reportProvenance": {
+    "verifierId": "verifier:synthetic-mechanical"
+  },
+  "evidenceBundle": {
+    "car": "../artifacts/integra-evidence-bundle.car",
+    "root": "bafkreida2xqyfnfa56npvh2xbw7sxo5cm27xl5uzvzstskm76yzluboyjy"
+  },
+  "authorization": {
+    "jws": "../artifacts/resolution-authorization-v1.jws.json",
+    "trustedKeys": "../../../core/valid/resolution-authorization-public-keys.json"
+  },
+  "legalContext": {
+    "legalContextSha256": "f5e185e24ab883e0d9b4325c0b12def7612383617cfaf3c74548f57811b6694b",
+    "termsAtrHash": "0xc4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+    "clauseId": "sha256:0x073a0a1f99039d65cadcdbdd201eae64af935f38a7f0ab113b46a1b94d868ec9",
+    "rulesSha256": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
+    "catalogSha256": "c7b945d37059c63ee6c936593d28a078a9f1d5e451a915e49789f51eb70b96ef",
+    "providerId": "urn:example:agentic-resolution:resolver",
+    "serviceId": "urn:example:agentic-resolution:service:v1"
+  },
+  "includedArtifacts": [
+    {
+      "artifactId": "ucp-order.json",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "mediaType": "application/json",
+      "source": "synthetic-commerce-order"
+    },
+    {
+      "artifactId": "claim.json",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "mediaType": "application/json",
+      "source": "synthetic-buyer-record"
+    },
+    {
+      "artifactId": "merchant-response.json",
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "mediaType": "application/json",
+      "source": "synthetic-merchant-record"
+    },
+    {
+      "artifactId": "legal-context.json",
+      "sha256": "f5e185e24ab883e0d9b4325c0b12def7612383617cfaf3c74548f57811b6694b",
+      "mediaType": "application/json",
+      "source": "lcp-exact-bytes"
+    },
+    {
+      "artifactId": "terms.md",
+      "sha256": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+      "mediaType": "text/markdown",
+      "source": "lcp-exact-bytes"
+    },
+    {
+      "artifactId": "dispute-clause.md",
+      "sha256": "073a0a1f99039d65cadcdbdd201eae64af935f38a7f0ab113b46a1b94d868ec9",
+      "mediaType": "text/markdown",
+      "source": "lcp-exact-bytes"
+    },
+    {
+      "artifactId": "rules.md",
+      "sha256": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
+      "mediaType": "text/markdown",
+      "source": "lcp-exact-bytes"
+    },
+    {
+      "artifactId": "dispute-services.json",
+      "sha256": "c7b945d37059c63ee6c936593d28a078a9f1d5e451a915e49789f51eb70b96ef",
+      "mediaType": "application/json",
+      "source": "lcp-exact-bytes"
+    }
+  ],
+  "excludedArtifacts": [
+    {
+      "artifactId": "verifier-observation.json",
+      "reason": "verifier_local_metadata"
+    }
+  ],
+  "now": "2026-08-24T16:00:00.000Z",
+  "expectedOutput": "resolution-handoff.json",
+  "expectedOutputSha256": "9a69d3b0efc89ded9ab886ca55bd5d09fbba080264f893ac55090ac807346662"
+}

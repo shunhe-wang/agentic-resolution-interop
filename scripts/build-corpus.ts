@@ -1,9 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildBundle, type Artifact } from "@integraledger/lcp-evidence";
+import { serializeReport, type VerificationReport } from "@integraledger/lcp-verify";
 import type { AuthorizationTrustKey, GeneralJws } from "../src/authorization.js";
 import { verifyBilateralAuthorization } from "../src/authorization.js";
 import { canonicalJson, sha256Bytes, sha256Canonical } from "../src/canonical.js";
+import { buildIntegraResolutionHandoff } from "../src/integra-adapter.js";
 import { verifyLcpBundle } from "../src/lcp.js";
 import { dispositionDigest, frozenRecordDigest, handoffDigest, validateLifecycle } from "../src/lifecycle.js";
 import {
@@ -40,6 +43,11 @@ const FIXTURES = path.join(ROOT, "fixtures");
 const utf8 = (value: string): Uint8Array => Buffer.from(value, "utf8");
 const clone = <T>(value: T): T => structuredClone(value);
 const writeText = (relative: string, value: string): void => {
+  const target = path.join(FIXTURES, relative);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, value);
+};
+const writeBytes = (relative: string, value: Uint8Array): void => {
   const target = path.join(FIXTURES, relative);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, value);
@@ -203,6 +211,105 @@ writeJson("core/valid/expected-digests.json", {
   handoffDigest: valid.handoffDigest,
   dispositionDigests: Object.fromEntries(lifecycle.dispositions.map((item) => [item.dispositionId, item.dispositionDigest])),
   authorizationArtifactHash: authorization.artifactHash,
+});
+
+const integraReport: VerificationReport = {
+  verified: true,
+  assurance: "legal-party",
+  claimedClass: "TC-3",
+  supportedClass: "TC-3",
+  asOf: FIXED_VERIFICATION_TIME,
+  steps: [
+    { name: "atr-fingerprint", outcome: { status: "proved" } },
+    { name: "settlement-enumeration", outcome: { status: "proved" } },
+    { name: "buyer-acceptance", outcome: { status: "proved" } },
+    { name: "authority-attenuation", outcome: { status: "proved" } },
+    { name: "commitment-vs-leaf", outcome: { status: "proved" } },
+    { name: "recourse-elections", outcome: { status: "proved" } },
+    { name: "resolve-party", outcome: { status: "proved" } },
+  ],
+  coverage: { ports: ["synthetic-mechanical-verifier"], bindings: ["ucp"] },
+  settlements: { found: [{ transactionId: manifest.transactionId }], multiplySettled: false },
+};
+const integraArtifacts: Artifact[] = [
+  { role: "atr", bytes: utf8('{"lcp":"0.3","recourse":{"forum":"Synthetic Neutral Tribunal","governingLaw":"US-NY"}}') },
+  { role: "signed acceptance", bytes: utf8("synthetic signed acceptance") },
+  { role: "authority chain", bytes: utf8("synthetic authority chain") },
+  { role: "spend artifact", bytes: utf8("synthetic spend authorization") },
+  { role: "attestation", bytes: utf8("synthetic identity attestation") },
+  { role: "settlement", bytes: utf8("synthetic settlement") },
+  { role: "weld", bytes: utf8("synthetic transaction weld") },
+  { role: "timestamp", bytes: utf8(FIXED_VERIFICATION_TIME) },
+];
+const integraEvidenceBundle = await buildBundle(integraArtifacts);
+const {
+  authority: _authority,
+  frozenRecord: _frozenRecord,
+  remedyCeilings: _remedyCeilings,
+  createdAt: _createdAt,
+  expiresAt: _expiresAt,
+  nativeProof: _nativeProof,
+  ...integraDraft
+} = handoff;
+const integraLegalContext = {
+  legalContextSha256: verifiedLcp.legalContext.sha256,
+  termsAtrHash: `0x${termsSha256}`,
+  clauseId,
+  rulesSha256,
+  catalogSha256,
+  providerId,
+  serviceId,
+};
+const integraHandoff = await buildIntegraResolutionHandoff({
+  draft: integraDraft,
+  verificationReport: integraReport,
+  reportProvenance: { verifierId: "verifier:synthetic-mechanical" },
+  evidenceBundle: integraEvidenceBundle,
+  authorization: { jws: authorizationJws, trustedKeys: authorizationKeys },
+  legalContext: integraLegalContext,
+  includedArtifacts: manifest.includedArtifacts,
+  excludedArtifacts: manifest.excludedArtifacts,
+  now: new Date(FIXED_VERIFICATION_TIME),
+});
+const integraNegativeVectors = [
+  { id: "unverified-report", mutation: "Set verificationReport.verified to false.", expectedErrorCode: "integra_report_unverified" },
+  { id: "malformed-report", mutation: "Replace the report with an object that omits its required runtime shape.", expectedErrorCode: "integra_report_shape_invalid" },
+  { id: "missing-evidence-role", mutation: "Rebuild the CAR without the authority chain role.", expectedErrorCode: "integra_evidence_roles_missing" },
+  { id: "bundle-root-mismatch", mutation: "Replace evidenceBundle.root without changing the CAR.", expectedErrorCode: "integra_evidence_root_mismatch" },
+  { id: "one-signature-authorization", mutation: "Remove either signature from the bilateral JWS.", expectedErrorCode: "authorization_signatures_invalid" },
+  { id: "changed-terms", mutation: "Change draft.terms.digest without changing the signed authorization.", expectedErrorCode: "handoff_binding_mismatch" },
+  { id: "missing-legal-artifact", mutation: "Remove the exact catalog artifact from includedArtifacts.", expectedErrorCode: "handoff_legal_artifact_missing" },
+  { id: "remedy-above-authorization", mutation: "Set requestedRemedy.amountMinorUnits to 5001.", expectedErrorCode: "remedy_outside_authorization" },
+];
+writeBytes("lcp/integra/artifacts/integra-verification-report.json", serializeReport(integraReport));
+writeBytes("lcp/integra/artifacts/integra-evidence-bundle.car", integraEvidenceBundle.car);
+writeText("lcp/integra/artifacts/resolution-authorization-v1.jws.json", canonicalJson(authorizationJws));
+writeJson("lcp/integra/valid/resolution-handoff.json", integraHandoff);
+writeJson("lcp/integra/valid/adapter-input.json", {
+  schemaVersion: "integra-resolution-handoff-input-fixture-v1",
+  synthetic: true,
+  draft: integraDraft,
+  verificationReport: "../artifacts/integra-verification-report.json",
+  reportProvenance: { verifierId: "verifier:synthetic-mechanical" },
+  evidenceBundle: {
+    car: "../artifacts/integra-evidence-bundle.car",
+    root: integraEvidenceBundle.root,
+  },
+  authorization: {
+    jws: "../artifacts/resolution-authorization-v1.jws.json",
+    trustedKeys: "../../../core/valid/resolution-authorization-public-keys.json",
+  },
+  legalContext: integraLegalContext,
+  includedArtifacts: manifest.includedArtifacts,
+  excludedArtifacts: manifest.excludedArtifacts,
+  now: FIXED_VERIFICATION_TIME,
+  expectedOutput: "resolution-handoff.json",
+  expectedOutputSha256: sha256Canonical(integraHandoff),
+});
+writeJson("lcp/integra/negative-vectors.json", {
+  schemaVersion: "integra-resolution-handoff-negative-vectors-v1",
+  baseInput: "valid/adapter-input.json",
+  vectors: integraNegativeVectors,
 });
 
 const mutations: Array<{ id: string; code: string; mutate: (value: ResolutionLifecycle) => void }> = [
@@ -441,7 +548,7 @@ writeJson("lcp/protocols/input/x402.json", {
 
 writeJson("core/manifest.json", {
   schemaVersion: "agentic-resolution-interop-corpus-v1",
-  corpusVersion: "0.1.0",
+  corpusVersion: "0.2.0",
   synthetic: true,
   validationTime: FIXED_VERIFICATION_TIME,
   validJourney: "valid/lifecycle.json",
@@ -450,6 +557,11 @@ writeJson("core/manifest.json", {
     publicKeys: "valid/resolution-authorization-public-keys.json",
   },
   lcpProfile: "../lcp/valid/verified-binding.json",
+  integraResolutionHandoff: {
+    input: "../lcp/integra/valid/adapter-input.json",
+    output: "../lcp/integra/valid/resolution-handoff.json",
+    negativeVectors: "../lcp/integra/negative-vectors.json",
+  },
   ucpPressureTests: [
     "../ucp/paths/escrow-held.json",
     "../ucp/paths/post-settlement-merchant-refund.json",
@@ -464,9 +576,11 @@ writeJson("core/manifest.json", {
     "Verifier-local observation metadata is excluded from stable handoff identity.",
     "A superseding disposition does not overwrite its predecessor.",
     "A disposition never proves execution.",
+    "The exact bilateral JWS, Integra report, and evidence CAR are jointly bound by the frozen-record digest.",
+    "A supplied verification report is frozen but its producer identity remains an application trust decision.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization.",
   ],
-  contentDigest: sha256Canonical({ lifecycle, negativeIndex }),
+  contentDigest: sha256Canonical({ lifecycle, negativeIndex, integraHandoff, integraNegativeVectors }),
 });
 
-console.log(`built ${mutations.length} stable lifecycle negatives, two UCP paths, and ${ucpNegativeVectors.length} UCP negatives`);
+console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, and ${ucpNegativeVectors.length} UCP negatives`);

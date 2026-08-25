@@ -5,10 +5,12 @@ This repository depends on the following packages at the versions locked in `pac
 | Package | Version | License | Source |
 |---|---:|---|---|
 | `@integraledger/lcp-discovery` | `0.12.1` | Apache-2.0 | https://github.com/IntegraLedger/integra-protocol |
+| `@integraledger/lcp-evidence` | `0.12.1` | Apache-2.0 | https://github.com/IntegraLedger/integra-protocol |
 | `@integraledger/lcp-kernel` | `0.12.1` | Apache-2.0 | https://github.com/IntegraLedger/integra-protocol |
 | `@integraledger/lcp-placement-ap2` | `0.12.1` | Apache-2.0 | https://github.com/IntegraLedger/integra-protocol |
 | `@integraledger/lcp-placement-ucp` | `0.12.1` | Apache-2.0 | https://github.com/IntegraLedger/integra-protocol |
 | `@integraledger/lcp-placement-x402` | `0.12.1` | Apache-2.0 | https://github.com/IntegraLedger/integra-protocol |
+| `@integraledger/lcp-verify` | `0.12.1` | Apache-2.0 | https://github.com/IntegraLedger/integra-protocol |
 | `canonicalize` | `4.0.0` | Apache-2.0 | https://github.com/erdtman/canonicalize |
 | `jose` | `6.2.10` | MIT | https://github.com/panva/jose |
 

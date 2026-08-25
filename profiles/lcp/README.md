@@ -13,3 +13,5 @@ The official Integra placement checks cover AP2, UCP, and x402.
 The AP2 mandate is deliberately opaque because mandate verification remains an upstream precondition.
 
 Start with the [verified binding](../../fixtures/lcp/valid/verified-binding.json) and [official placement results](../../fixtures/lcp/protocols/official-results.json).
+
+For the next resolver-side layer, see the [Integra resolution-handoff adapter](../../adapters/integra-resolution-handoff/README.md) and its [complete synthetic input](../../fixtures/lcp/integra/valid/adapter-input.json).

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "agentic-resolution-interop-corpus-v1",
-  "corpusVersion": "0.1.0",
+  "corpusVersion": "0.2.0",
   "synthetic": true,
   "validationTime": "2026-08-24T16:00:00.000Z",
   "validJourney": "valid/lifecycle.json",
@@ -9,6 +9,11 @@
     "publicKeys": "valid/resolution-authorization-public-keys.json"
   },
   "lcpProfile": "../lcp/valid/verified-binding.json",
+  "integraResolutionHandoff": {
+    "input": "../lcp/integra/valid/adapter-input.json",
+    "output": "../lcp/integra/valid/resolution-handoff.json",
+    "negativeVectors": "../lcp/integra/negative-vectors.json"
+  },
   "ucpPressureTests": [
     "../ucp/paths/escrow-held.json",
     "../ucp/paths/post-settlement-merchant-refund.json"
@@ -116,7 +121,9 @@
     "Verifier-local observation metadata is excluded from stable handoff identity.",
     "A superseding disposition does not overwrite its predecessor.",
     "A disposition never proves execution.",
+    "The exact bilateral JWS, Integra report, and evidence CAR are jointly bound by the frozen-record digest.",
+    "A supplied verification report is frozen but its producer identity remains an application trust decision.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization."
   ],
-  "contentDigest": "f5c5414b68c36c90157a1d9169ba01380259a76daa7a9245eeef95924b0baf21"
+  "contentDigest": "9de576cf43a4b9031d6fdc95bd1c9d62abd4c615ceeccbe7c39ce4a03a4088e7"
 }

@@ -25,6 +25,18 @@ The adapter records a native verification receipt or proof reference in the froz
 
 This repository does not replace UCP business-profile trust, AP2 mandate verification, x402 settlement verification, checkout authentication, or rail-specific receipt verification.
 
+## Integra resolver-handoff adapter
+
+`buildIntegraResolutionHandoff` is the post-verification seam between an Integra verification walk and the neutral resolution lifecycle.
+
+It requires a supplied mechanical report that declares TC-3 or TC-4 coverage with every resolver-required step proved. It independently checks the supplied CAR's block and manifest integrity, root, and RCS-4 evidence-role floor with `@integraledger/lcp-evidence`.
+
+It then verifies the exact bilateral resolution-authorization JWS against pinned public keys and matches the signed transaction, parties, legal context, claim scope, and remedy ceiling to the proposed handoff.
+
+The frozen manifest jointly binds the canonical report bytes, evidence CAR bytes, exact authorization JWS, legal artifacts, transaction artifacts, claim, and merchant response. The report and CAR are siblings in that record; neither is treated as resolution consent.
+
+The adapter does not execute Integra's live ports and cannot authenticate the identity of the process that supplied the report. Applications must obtain the report from a trusted verification boundary before calling it.
+
 ## LCP profile
 
 The LCP profile binds exact supplied bytes for discovery, terms, clause, rules, and an experimental dispute-services catalog.
