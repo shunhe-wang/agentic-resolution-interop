@@ -60,6 +60,18 @@ For post-settlement execution, the prior merchant-settlement evidence, dispositi
 
 The committed UCP negative vectors must reject swapped executor, receipt, and custody evidence with their declared reason codes. The fixture objects are neutral comparison shapes, not upstream- or vendor-native schemas.
 
+## ACP test-vector behavior
+
+A conforming ACP test-vector runner must preserve the source `Order` without adding extension fields and bind its order, checkout, and contested line-item identifiers into the external handoff.
+
+The source `dispute` adjustment must remain a contest signal rather than resolution authority.
+
+The runner must reject a handoff that lacks separate bilateral authority with `acp_resolution_authority_missing`.
+
+It must reject reuse of the operative disposition artifact as execution evidence with `acp_execution_not_separate`.
+
+The pinned source check covers only the ACP `Order` fields exercised by this vector and does not authenticate the merchant or claim ACP-native signature verification.
+
 ## Reproduction
 
 ```bash

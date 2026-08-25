@@ -5,9 +5,24 @@
   "synthetic": true,
   "files": [
     {
+      "path": "acp/negative/disposition-as-execution.json",
+      "sha256": "b1303a876c880f4351d4d866010bcffd93d57afd27e4ec6a4291f11f7911c6d4",
+      "bytes": 11916
+    },
+    {
+      "path": "acp/negative/dispute-adjustment-without-bilateral-authority.json",
+      "sha256": "351e27d9e30aced06f597c9746b801b1ac6c44ad3e4833911dc940925e60bfad",
+      "bytes": 11908
+    },
+    {
+      "path": "acp/valid/contested-external-resolution.json",
+      "sha256": "5fe2975b3e530aa8b3868c131d018c708f1d6fda588e5837eff480b5c1ee0a52",
+      "bytes": 11852
+    },
+    {
       "path": "core/manifest.json",
-      "sha256": "c0314d91e4e71597ac63a738e315fb7d14c681418ca3486f216baeed76e6ccc6",
-      "bytes": 4451
+      "sha256": "f8eda1ca979a7274b312a1ea4e4b0ea6dd600d514675b62a9e54cfb230c51b14",
+      "bytes": 5098
     },
     {
       "path": "core/negative/changed-frozen-record.json",

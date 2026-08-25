@@ -35,6 +35,27 @@
       "expectedReasonCode": "ucp_path_custody_evidence_mismatch"
     }
   ],
+  "acpTestVectors": {
+    "valid": "../acp/valid/contested-external-resolution.json",
+    "negatives": [
+      {
+        "id": "dispute-adjustment-without-bilateral-authority",
+        "path": "../acp/negative/dispute-adjustment-without-bilateral-authority.json",
+        "expectedReasonCodes": [
+          "acp_lifecycle_invalid",
+          "acp_resolution_authority_missing"
+        ]
+      },
+      {
+        "id": "disposition-as-execution",
+        "path": "../acp/negative/disposition-as-execution.json",
+        "expectedReasonCodes": [
+          "acp_execution_not_separate",
+          "acp_lifecycle_invalid"
+        ]
+      }
+    ]
+  },
   "negatives": [
     {
       "id": "missing-frozen-record-digest",
@@ -125,5 +146,5 @@
     "A supplied verification report is frozen but its producer identity remains an application trust decision.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization."
   ],
-  "contentDigest": "9de576cf43a4b9031d6fdc95bd1c9d62abd4c615ceeccbe7c39ce4a03a4088e7"
+  "contentDigest": "747617a7aeaa519af5e0e2972b8fb9ef2d26417011844b59d1760d802a1764e5"
 }

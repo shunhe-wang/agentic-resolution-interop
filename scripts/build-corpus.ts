@@ -3,6 +3,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildBundle, type Artifact } from "@integraledger/lcp-evidence";
 import { serializeReport, type VerificationReport } from "@integraledger/lcp-verify";
+import {
+  ACP_ORDER_SCHEMA_URL,
+  ACP_UPSTREAM_REVISION,
+  sealAcpExternalResolutionLifecycle,
+  validateAcpExternalResolutionFixture,
+  type AcpExternalResolutionFixture,
+  type AcpSourceOrder,
+  type AcpSourceVerification,
+} from "../src/acp.js";
 import type { AuthorizationTrustKey, GeneralJws } from "../src/authorization.js";
 import { verifyBilateralAuthorization } from "../src/authorization.js";
 import { canonicalJson, sha256Bytes, sha256Canonical } from "../src/canonical.js";
@@ -528,6 +537,135 @@ for (const vector of ucpNegativeVectors) {
   writeJson(`ucp/negative/${vector.id}.json`, vector);
 }
 
+const acpOrder: AcpSourceOrder = {
+  type: "order",
+  id: "order-neutral-001",
+  checkout_session_id: "checkout-neutral-001",
+  permalink_url: "https://merchant.example.test/orders/order-neutral-001",
+  status: "processing",
+  line_items: [{
+    id: "line-002",
+    title: "Undelivered synthetic item",
+    quantity: { ordered: 1, current: 1, fulfilled: 0 },
+    unit_price: 2500,
+    subtotal: 2500,
+    status: "processing",
+  }],
+  adjustments: [{
+    id: "adjustment-dispute-001",
+    type: "dispute",
+    occurred_at: "2026-08-24T15:55:00.000Z",
+    status: "pending",
+    line_items: [{ id: "line-002", quantity: 1 }],
+    amount: 2500,
+    currency: "usd",
+    description: "Buyer contests non-delivery of one synthetic item.",
+    reason: "non_delivery",
+  }],
+  totals: [
+    { type: "total", display_text: "Total", amount: 2500 },
+    { type: "amount_refunded", display_text: "Refunded", amount: 0 },
+  ],
+};
+const acpVerification: AcpSourceVerification = {
+  schemaVersion: "synthetic-acp-record-verification-v1",
+  upstreamRevision: ACP_UPSTREAM_REVISION,
+  orderSchema: ACP_ORDER_SCHEMA_URL,
+  canonicalization: "RFC8785",
+  digestAlgorithm: "SHA-256",
+  orderSha256: sha256Canonical(acpOrder),
+  validationScope: "pinned-order-fields-exercised-by-this-vector",
+  authenticity: "not_claimed",
+};
+const acpLifecycle = sealAcpExternalResolutionLifecycle(lifecycle, acpOrder, acpVerification);
+const validAcpFixture: AcpExternalResolutionFixture = {
+  schemaVersion: "acp-external-resolution-test-vector-v1",
+  synthetic: true,
+  informative: true,
+  source: {
+    protocol: "agentic_checkout_acp",
+    upstreamRevision: ACP_UPSTREAM_REVISION,
+    orderSchema: ACP_ORDER_SCHEMA_URL,
+    verification: acpVerification,
+    order: acpOrder,
+  },
+  mapping: {
+    contestedAdjustmentId: "adjustment-dispute-001",
+    lifecycleArtifactRef: "#/lifecycle",
+    extensionPlacement: "not_asserted",
+  },
+  lifecycle: acpLifecycle,
+  expected: { valid: true, reasonCodes: [] },
+};
+const validAcpReasons = validateAcpExternalResolutionFixture(validAcpFixture, {
+  now: new Date(FIXED_VERIFICATION_TIME),
+});
+if (validAcpReasons.length > 0) throw new Error(`valid ACP vector failed: ${validAcpReasons.join(", ")}`);
+writeJson("acp/valid/contested-external-resolution.json", validAcpFixture);
+
+const resealAcpMutation = (fixture: AcpExternalResolutionFixture): void => {
+  const lifecycle = fixture.lifecycle;
+  const stableHandoffDigest = handoffDigest(lifecycle.handoff);
+  for (const disposition of lifecycle.dispositions) {
+    disposition.handoffDigest = stableHandoffDigest;
+    disposition.dispositionDigest = dispositionDigest(disposition);
+  }
+  const operative = lifecycle.dispositions.find(
+    (disposition) => disposition.dispositionId === lifecycle.operativeDispositionId,
+  );
+  for (const execution of lifecycle.executions) {
+    if (operative && execution.dispositionId === operative.dispositionId) {
+      execution.dispositionDigest = operative.dispositionDigest;
+    }
+  }
+};
+
+const acpNegativeVectors: Array<{
+  id: string;
+  fixture: AcpExternalResolutionFixture;
+}> = [
+  {
+    id: "dispute-adjustment-without-bilateral-authority",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      value.lifecycle.handoff.authority.respondentAuthorityRef = "";
+      resealAcpMutation(value);
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_lifecycle_invalid", "acp_resolution_authority_missing"],
+      };
+      return value;
+    })(),
+  },
+  {
+    id: "disposition-as-execution",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      const operative = value.lifecycle.dispositions.find(
+        (disposition) => disposition.dispositionId === value.lifecycle.operativeDispositionId,
+      )!;
+      value.lifecycle.executions[0]!.receiptProof = {
+        ...operative.signedArtifact,
+        verificationStatus: "passed",
+      };
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_execution_not_separate", "acp_lifecycle_invalid"],
+      };
+      return value;
+    })(),
+  },
+];
+for (const vector of acpNegativeVectors) {
+  const reasons = validateAcpExternalResolutionFixture(vector.fixture, {
+    now: new Date(FIXED_VERIFICATION_TIME),
+  });
+  if (JSON.stringify(reasons) !== JSON.stringify(vector.fixture.expected.reasonCodes)) {
+    throw new Error(`${vector.id} ACP vector produced ${reasons.join(", ")}`);
+  }
+  writeJson(`acp/negative/${vector.id}.json`, vector.fixture);
+}
+
 const opaqueMandate = "synthetic.ap2.mandate.bytes.must.remain.identical";
 writeJson("lcp/protocols/placement-input.json", {
   ref: { type: "sha256", value: `0x${termsSha256}` },
@@ -571,6 +709,14 @@ writeJson("core/manifest.json", {
     path: `../ucp/negative/${vector.id}.json`,
     expectedReasonCode: vector.expectedReasonCode,
   })),
+  acpTestVectors: {
+    valid: "../acp/valid/contested-external-resolution.json",
+    negatives: acpNegativeVectors.map((vector) => ({
+      id: vector.id,
+      path: `../acp/negative/${vector.id}.json`,
+      expectedReasonCodes: vector.fixture.expected.reasonCodes,
+    })),
+  },
   negatives: negativeIndex,
   identityInvariants: [
     "Verifier-local observation metadata is excluded from stable handoff identity.",
@@ -580,7 +726,14 @@ writeJson("core/manifest.json", {
     "A supplied verification report is frozen but its producer identity remains an application trust decision.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization.",
   ],
-  contentDigest: sha256Canonical({ lifecycle, negativeIndex, integraHandoff, integraNegativeVectors }),
+  contentDigest: sha256Canonical({
+    lifecycle,
+    negativeIndex,
+    integraHandoff,
+    integraNegativeVectors,
+    validAcpFixture,
+    acpNegativeVectors,
+  }),
 });
 
-console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, and ${ucpNegativeVectors.length} UCP negatives`);
+console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, ${ucpNegativeVectors.length} UCP negatives, and three ACP resolution vectors`);
