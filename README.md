@@ -19,7 +19,7 @@ npm run check
 
 The check builds the TypeScript, runs the lifecycle, adapter, and security vectors, verifies official Integra LCP placement behavior for UCP, AP2, and x402, checks the corpus seal, and audits the public export boundary.
 
-Expected result: 32 tests pass, 16 core negative lifecycle vectors, eight Integra adapter negatives, three UCP path negatives, and three ACP negatives produce their declared reason codes, all seven GET Order reconciliation cases pass, both UCP pressure-test paths remain distinct, and 53 fixture files match the committed seal.
+Expected result: 35 tests pass, 16 core negative lifecycle vectors, eight Integra adapter negatives, three UCP path negatives, and four ACP negatives produce their declared reason codes, all seven GET Order matrix cases and the corrupt-state regression pass, both UCP pressure-test paths remain distinct, and 54 fixture files match the committed seal.
 
 ## Start with these public fixtures
 
