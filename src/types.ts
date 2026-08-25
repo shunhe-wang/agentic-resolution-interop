@@ -1,4 +1,4 @@
-export type ProtocolId = "ucp" | "ap2" | "x402" | "agentic_checkout_acp" | "custom";
+export type ProtocolId = "ucp" | "ap2" | "x402" | "a2a" | "agentic_checkout_acp" | "virtuals_acp" | "custom";
 export type ResolutionAction = "refund" | "release_to_claimant" | "release_to_respondent" | "allocate_by_award" | "replace_product" | "none";
 
 export type Money = {
@@ -42,7 +42,7 @@ export type ResolutionHandoff = {
     respondent: string;
     recordIssuer: string;
     resolver: string;
-    executor: string;
+    executor?: string;
   };
   claim: {
     claimId: string;
@@ -141,11 +141,17 @@ export type LifecycleReasonCode =
   | "remedy_above_ceiling"
   | "disposition_handoff_mismatch"
   | "disposition_record_mismatch"
+  | "disposition_id_duplicate"
+  | "disposition_graph_disconnected"
   | "operative_disposition_missing"
   | "superseded_disposition_operative"
+  | "supersession_target_missing"
   | "supersession_cycle"
   | "supersession_fork"
   | "execution_disposition_mismatch"
+  | "execution_executor_missing"
+  | "execution_id_duplicate"
+  | "execution_reference_duplicate"
   | "execution_outside_authority"
   | "execution_receipt_missing"
   | "execution_failure_code_missing"

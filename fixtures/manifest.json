@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "core/manifest.json",
-      "sha256": "17960e583aa629e9f837a425d291e06e946aaabb7c0f89d17533c3f2187e34ae",
-      "bytes": 4009
+      "sha256": "7e3534c8ae194e16f39d0216dde9462b8eda9e707d7f29235fca143acc014397",
+      "bytes": 5543
     },
     {
       "path": "core/negative/changed-frozen-record.json",
@@ -20,14 +20,39 @@
       "bytes": 8780
     },
     {
+      "path": "core/negative/cumulative-execution-overrun.json",
+      "sha256": "f5b705ab60c34e1ae8d9f97e063b80db4c51c1b0eb416db3b350f086a1fd6d15",
+      "bytes": 9878
+    },
+    {
       "path": "core/negative/decision-as-execution.json",
       "sha256": "724bc9ae96dcf75eb24e093e5c5b668ea73c196126fb6047c5b77fe6d10e4064",
       "bytes": 8959
     },
     {
+      "path": "core/negative/disconnected-disposition-graph.json",
+      "sha256": "c3af084665425b5ad33cf640fe5f8754e10722d06f525486b7fe581baf741e25",
+      "bytes": 9927
+    },
+    {
       "path": "core/negative/disposition-other-record.json",
       "sha256": "69683f1a056419a4687374b3ba7db1a3bc153cf52f3a1101e3cead1a9d17c4d1",
       "bytes": 8975
+    },
+    {
+      "path": "core/negative/duplicate-disposition-id.json",
+      "sha256": "8d3786f898a12d294dae1522e18d83f51a0ad32b74a7983afedc1e835f97bdc6",
+      "bytes": 9910
+    },
+    {
+      "path": "core/negative/duplicate-execution-id.json",
+      "sha256": "5f80e8bbd24582413431a1217d3830c481a52f93b0d531ba2dcb6eaaf6ce2d0d",
+      "bytes": 9646
+    },
+    {
+      "path": "core/negative/duplicate-execution-reference.json",
+      "sha256": "d513c727bda385e975d8ff46e51339f5e1fb80665c4b4aab2ce8bc795c81b384",
+      "bytes": 9881
     },
     {
       "path": "core/negative/execution-other-disposition.json",
@@ -40,19 +65,39 @@
       "bytes": 8982
     },
     {
+      "path": "core/negative/execution-without-executor.json",
+      "sha256": "a52d1dcd196b2aeb134948ec81f24c55c8dcadd9d8475907f57c94ee8d2c36a9",
+      "bytes": 8919
+    },
+    {
+      "path": "core/negative/line-item-delimiter-collision.json",
+      "sha256": "340ef34c418be443d477013778f35616c56ba0cb73520d109a741807f7d0829a",
+      "bytes": 9045
+    },
+    {
       "path": "core/negative/missing-frozen-record-digest.json",
       "sha256": "714958d976df278cb7648abf85a78873c67bcd6bc4293e3c45b5d7d04b1c03f5",
       "bytes": 8916
     },
     {
       "path": "core/negative/missing-party-authority.json",
-      "sha256": "0aab3747864444056e25fc5f62534bf3b40e49b37ae03e400986a6c7bd9f588a",
-      "bytes": 8948
+      "sha256": "c8ee3e7a96bd5d024abe283b18729c5a94cff2c8aa1710bd90a130ac0805e8c8",
+      "bytes": 8910
+    },
+    {
+      "path": "core/negative/missing-supersession-target.json",
+      "sha256": "2e63a8bd6a76cdeb72ff53f72b59291badd9d5bb32cd2d22f247b77053d0b45d",
+      "bytes": 8981
     },
     {
       "path": "core/negative/remedy-above-ceiling.json",
       "sha256": "15e5e168845600c50e82fe1a7c577ef55fa2598ac5b32297dd72362ba04657d3",
       "bytes": 8964
+    },
+    {
+      "path": "core/negative/resolution-authorization-one-signature.json",
+      "sha256": "804a418b3496f2d650253519e74fb242674c14df65ef588f3015751ad8028d66",
+      "bytes": 1974
     },
     {
       "path": "core/negative/stale-policy.json",
@@ -88,6 +133,11 @@
       "path": "core/negative/wrong-order-reference.json",
       "sha256": "9298e4811e2e9b9ec8b3c1143a441e1e1829aed3b05aa86f00a8ba78548995ea",
       "bytes": 8969
+    },
+    {
+      "path": "core/valid/advisory-lifecycle.json",
+      "sha256": "64e51077303d75c444dc66498b42bdd7a8824c1ea5daff41ed7148ba83e395a1",
+      "bytes": 7581
     },
     {
       "path": "core/valid/expected-digests.json",

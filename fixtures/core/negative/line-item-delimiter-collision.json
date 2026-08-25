@@ -1,6 +1,6 @@
 {
-  "id": "missing-party-authority",
-  "expectedReasonCode": "party_authority_missing",
+  "id": "line-item-delimiter-collision",
+  "expectedReasonCode": "disputed_line_reference_mismatch",
   "lifecycle": {
     "handoff": {
       "schemaVersion": "resolution-handoff-v1",
@@ -12,7 +12,7 @@
         "orderId": "order-neutral-001",
         "checkoutId": "checkout-neutral-001",
         "disputedLineItemIds": [
-          "line-002"
+          "line-002\nline-extra"
         ]
       },
       "roles": {
@@ -41,8 +41,8 @@
       "authority": {
         "bilateral": true,
         "claimantAuthorityRef": "authority:buyer:001",
-        "respondentAuthorityRef": "",
-        "authorizationArtifactHash": "5e0a9f0de18d18e3b7d266f78a7c90e4f13864392c967ccd7b164e96b96cf867"
+        "respondentAuthorityRef": "authority:merchant:001",
+        "authorizationArtifactHash": "25d2455c298f9b8d18ae0a9d44c4e255a5e553509aec0e2a0964106aa7026120"
       },
       "policy": {
         "version": "1.0.0",
@@ -60,12 +60,14 @@
           "transactionId": "tx-neutral-001",
           "orderId": "order-neutral-001",
           "disputedLineItemIds": [
-            "line-002"
+            "line-002",
+            "line-extra"
           ],
           "policyDigest": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
           "termsDigest": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
           "authorityRefs": [
-            "authority:buyer:001"
+            "authority:buyer:001",
+            "authority:merchant:001"
           ],
           "includedArtifacts": [
             {
@@ -124,7 +126,7 @@
             }
           ]
         },
-        "digest": "c0302a3821a75624acc15396869e60ae8852bfc753b8827327e15b7dee4e0dc9"
+        "digest": "8b5d2fbea90c354dd6374511e561de8712353e5951be68607d88936e98ad63d5"
       },
       "remedyCeilings": [
         {
@@ -150,10 +152,10 @@
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-001",
-        "dispositionDigest": "372f4fb4eecaf034e7cd70cac6ea09cf9e2283007c2f006e07408028f78b8f64",
-        "handoffDigest": "f7c8308e7a1c889b8ed312c364a29aa9fe3ea6e255d8f622cb53c383b55a681c",
+        "dispositionDigest": "2d54dfd313d5d5fabd59f5efb6a081c8479858f8303ae5d02faa255c939be5ec",
+        "handoffDigest": "37b1bc4a9496d6bd53fa219f8ee94b2ec8cf560724696ed318c9c3eb4fd00c0b",
         "transactionId": "tx-neutral-001",
-        "frozenRecordDigest": "c0302a3821a75624acc15396869e60ae8852bfc753b8827327e15b7dee4e0dc9",
+        "frozenRecordDigest": "8b5d2fbea90c354dd6374511e561de8712353e5951be68607d88936e98ad63d5",
         "outcome": "claim_granted",
         "authorizedRemedy": {
           "action": "refund",
@@ -171,10 +173,10 @@
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "d73ca657506ed01f9d9b4c264907f46224af89cdcef08c19c1ba3dc411e0cbca",
-        "handoffDigest": "f7c8308e7a1c889b8ed312c364a29aa9fe3ea6e255d8f622cb53c383b55a681c",
+        "dispositionDigest": "755ac22e37d90a6418416974fc4764c90aee6617263a28809ce7af099bc22917",
+        "handoffDigest": "37b1bc4a9496d6bd53fa219f8ee94b2ec8cf560724696ed318c9c3eb4fd00c0b",
         "transactionId": "tx-neutral-001",
-        "frozenRecordDigest": "c0302a3821a75624acc15396869e60ae8852bfc753b8827327e15b7dee4e0dc9",
+        "frozenRecordDigest": "8b5d2fbea90c354dd6374511e561de8712353e5951be68607d88936e98ad63d5",
         "outcome": "claim_partially_granted",
         "authorizedRemedy": {
           "action": "refund",
@@ -197,7 +199,7 @@
         "schemaVersion": "resolution-execution-receipt-v1",
         "executionId": "execution-neutral-001",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "d73ca657506ed01f9d9b4c264907f46224af89cdcef08c19c1ba3dc411e0cbca",
+        "dispositionDigest": "755ac22e37d90a6418416974fc4764c90aee6617263a28809ce7af099bc22917",
         "action": "refund",
         "currency": "USD",
         "amountMinorUnits": "2000",
@@ -218,7 +220,8 @@
       "transactionId": "tx-neutral-001",
       "orderId": "order-neutral-001",
       "disputedLineItemIds": [
-        "line-002"
+        "line-002",
+        "line-extra"
       ],
       "currentPolicyDigest": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
       "currentTermsDigest": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674"

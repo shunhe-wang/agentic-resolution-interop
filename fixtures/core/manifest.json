@@ -1,9 +1,10 @@
 {
   "schemaVersion": "agentic-resolution-interop-corpus-v1",
-  "corpusVersion": "0.1.0",
+  "corpusVersion": "0.1.1",
   "synthetic": true,
   "validationTime": "2026-08-24T16:00:00.000Z",
   "validJourney": "valid/lifecycle.json",
+  "advisoryJourney": "valid/advisory-lifecycle.json",
   "authorization": {
     "jws": "valid/resolution-authorization-v1.json",
     "publicKeys": "valid/resolution-authorization-public-keys.json"
@@ -92,13 +93,48 @@
       "expectedReasonCode": "supersession_fork"
     },
     {
+      "id": "duplicate-disposition-id",
+      "path": "negative/duplicate-disposition-id.json",
+      "expectedReasonCode": "disposition_id_duplicate"
+    },
+    {
+      "id": "missing-supersession-target",
+      "path": "negative/missing-supersession-target.json",
+      "expectedReasonCode": "supersession_target_missing"
+    },
+    {
+      "id": "disconnected-disposition-graph",
+      "path": "negative/disconnected-disposition-graph.json",
+      "expectedReasonCode": "disposition_graph_disconnected"
+    },
+    {
       "id": "execution-other-disposition",
       "path": "negative/execution-other-disposition.json",
       "expectedReasonCode": "execution_disposition_mismatch"
     },
     {
+      "id": "execution-without-executor",
+      "path": "negative/execution-without-executor.json",
+      "expectedReasonCode": "execution_executor_missing"
+    },
+    {
       "id": "execution-outside-authorization",
       "path": "negative/execution-outside-authorization.json",
+      "expectedReasonCode": "execution_outside_authority"
+    },
+    {
+      "id": "duplicate-execution-id",
+      "path": "negative/duplicate-execution-id.json",
+      "expectedReasonCode": "execution_id_duplicate"
+    },
+    {
+      "id": "duplicate-execution-reference",
+      "path": "negative/duplicate-execution-reference.json",
+      "expectedReasonCode": "execution_reference_duplicate"
+    },
+    {
+      "id": "cumulative-execution-overrun",
+      "path": "negative/cumulative-execution-overrun.json",
       "expectedReasonCode": "execution_outside_authority"
     },
     {
@@ -110,13 +146,19 @@
       "id": "decision-as-execution",
       "path": "negative/decision-as-execution.json",
       "expectedReasonCode": "decision_not_execution"
+    },
+    {
+      "id": "line-item-delimiter-collision",
+      "path": "negative/line-item-delimiter-collision.json",
+      "expectedReasonCode": "disputed_line_reference_mismatch"
     }
   ],
   "identityInvariants": [
     "Verifier-local observation metadata is excluded from stable handoff identity.",
     "A superseding disposition does not overwrite its predecessor.",
     "A disposition never proves execution.",
+    "A final advisory disposition does not require an executor, execution attempt, or receipt.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization."
   ],
-  "contentDigest": "f5c5414b68c36c90157a1d9169ba01380259a76daa7a9245eeef95924b0baf21"
+  "contentDigest": "76d23398a025c0e69d60e799a738eccc092b544cde38f3a05cd3b62441e5c98a"
 }

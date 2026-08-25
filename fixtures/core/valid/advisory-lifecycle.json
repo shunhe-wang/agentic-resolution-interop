@@ -1,0 +1,202 @@
+{
+  "handoff": {
+    "schemaVersion": "resolution-handoff-v1",
+    "handoffId": "handoff-neutral-advisory-001",
+    "disputeId": "dispute-neutral-advisory-001",
+    "nativeProtocol": "ucp",
+    "transaction": {
+      "transactionId": "tx-neutral-001",
+      "orderId": "order-neutral-001",
+      "checkoutId": "checkout-neutral-001",
+      "disputedLineItemIds": [
+        "line-002"
+      ]
+    },
+    "roles": {
+      "claimant": "principal:buyer:001",
+      "respondent": "principal:merchant:001",
+      "recordIssuer": "issuer:synthetic-merchant-ledger",
+      "resolver": "urn:example:agentic-resolution:resolver"
+    },
+    "claim": {
+      "claimId": "claim-neutral-001",
+      "claimType": "non_delivery",
+      "artifactRef": "claim.json",
+      "artifactHash": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "merchantResponse": {
+      "response": "denied",
+      "artifactRef": "merchant-response.json",
+      "artifactHash": "5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "requestedRemedy": {
+      "action": "refund",
+      "currency": "USD",
+      "amountMinorUnits": "2500"
+    },
+    "authority": {
+      "bilateral": true,
+      "claimantAuthorityRef": "authority:buyer:001",
+      "respondentAuthorityRef": "authority:merchant:001",
+      "authorizationArtifactHash": "25d2455c298f9b8d18ae0a9d44c4e255a5e553509aec0e2a0964106aa7026120"
+    },
+    "policy": {
+      "version": "1.0.0",
+      "digest": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19"
+    },
+    "terms": {
+      "version": "lcp-0.1.38",
+      "digest": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674"
+    },
+    "frozenRecord": {
+      "canonicalization": "RFC8785",
+      "digestAlgorithm": "SHA-256",
+      "manifest": {
+        "schemaVersion": "resolution-frozen-record-manifest-v1",
+        "transactionId": "tx-neutral-001",
+        "orderId": "order-neutral-001",
+        "disputedLineItemIds": [
+          "line-002"
+        ],
+        "policyDigest": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
+        "termsDigest": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+        "authorityRefs": [
+          "authority:buyer:001",
+          "authority:merchant:001"
+        ],
+        "includedArtifacts": [
+          {
+            "artifactId": "ucp-order.json",
+            "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+            "mediaType": "application/json",
+            "source": "synthetic-commerce-order"
+          },
+          {
+            "artifactId": "claim.json",
+            "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+            "mediaType": "application/json",
+            "source": "synthetic-buyer-record"
+          },
+          {
+            "artifactId": "merchant-response.json",
+            "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+            "mediaType": "application/json",
+            "source": "synthetic-merchant-record"
+          },
+          {
+            "artifactId": "legal-context.json",
+            "sha256": "f5e185e24ab883e0d9b4325c0b12def7612383617cfaf3c74548f57811b6694b",
+            "mediaType": "application/json",
+            "source": "lcp-exact-bytes"
+          },
+          {
+            "artifactId": "terms.md",
+            "sha256": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674",
+            "mediaType": "text/markdown",
+            "source": "lcp-exact-bytes"
+          },
+          {
+            "artifactId": "dispute-clause.md",
+            "sha256": "073a0a1f99039d65cadcdbdd201eae64af935f38a7f0ab113b46a1b94d868ec9",
+            "mediaType": "text/markdown",
+            "source": "lcp-exact-bytes"
+          },
+          {
+            "artifactId": "rules.md",
+            "sha256": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
+            "mediaType": "text/markdown",
+            "source": "lcp-exact-bytes"
+          },
+          {
+            "artifactId": "dispute-services.json",
+            "sha256": "c7b945d37059c63ee6c936593d28a078a9f1d5e451a915e49789f51eb70b96ef",
+            "mediaType": "application/json",
+            "source": "lcp-exact-bytes"
+          }
+        ],
+        "excludedArtifacts": [
+          {
+            "artifactId": "verifier-observation.json",
+            "reason": "verifier_local_metadata"
+          }
+        ]
+      },
+      "digest": "b905a58d16da0a9792536826460ae562b0a2d30440a70b4c481d6c84af59bb67"
+    },
+    "remedyCeilings": [
+      {
+        "action": "refund",
+        "currency": "USD",
+        "amountMinorUnits": "5000"
+      }
+    ],
+    "resolver": {
+      "resolverId": "urn:example:agentic-resolution:resolver",
+      "rulesetId": "urn:example:agentic-resolution:rules:v1",
+      "rulesVersion": "1.0.0"
+    },
+    "createdAt": "2026-08-24T16:00:00.000Z",
+    "expiresAt": "2027-08-24T16:00:00.000Z",
+    "nativeProof": {
+      "artifactRef": "ucp-order-signature.json",
+      "sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+      "verificationMethod": "upstream-protocol-verification-receipt"
+    }
+  },
+  "dispositions": [
+    {
+      "schemaVersion": "resolution-disposition-v1",
+      "dispositionId": "disposition-neutral-advisory-001",
+      "dispositionDigest": "7bb29fc1848d870c3ef328827563e4aa245a43ce8aee2bf6cbca8d0b0a41d1e1",
+      "handoffDigest": "1af2be821e17c52e1fccf100fcfc6ba295dca1d01fb4b2ed14a1732358ce0e14",
+      "transactionId": "tx-neutral-001",
+      "frozenRecordDigest": "b905a58d16da0a9792536826460ae562b0a2d30440a70b4c481d6c84af59bb67",
+      "outcome": "claim_granted",
+      "authorizedRemedy": {
+        "action": "refund",
+        "currency": "USD",
+        "amountMinorUnits": "2500"
+      },
+      "issuedAt": "2026-08-25T12:00:00.000Z",
+      "issuerRef": "tribunal:synthetic-neutral",
+      "reviewState": "superseded",
+      "signedArtifact": {
+        "artifactRef": "advisory-ruling-revision-1.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "schemaVersion": "resolution-disposition-v1",
+      "dispositionId": "disposition-neutral-advisory-002",
+      "dispositionDigest": "7e0b640c6ab99f5cf69386d915aa6d0578bdd97091ff815863e43aa24716f4cf",
+      "handoffDigest": "1af2be821e17c52e1fccf100fcfc6ba295dca1d01fb4b2ed14a1732358ce0e14",
+      "transactionId": "tx-neutral-001",
+      "frozenRecordDigest": "b905a58d16da0a9792536826460ae562b0a2d30440a70b4c481d6c84af59bb67",
+      "outcome": "claim_partially_granted",
+      "authorizedRemedy": {
+        "action": "refund",
+        "currency": "USD",
+        "amountMinorUnits": "2000"
+      },
+      "issuedAt": "2026-08-26T12:00:00.000Z",
+      "issuerRef": "tribunal:synthetic-neutral",
+      "reviewState": "final",
+      "signedArtifact": {
+        "artifactRef": "advisory-ruling-revision-2.json",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "supersedesDispositionId": "disposition-neutral-advisory-001"
+    }
+  ],
+  "operativeDispositionId": "disposition-neutral-advisory-002",
+  "executions": [],
+  "expected": {
+    "transactionId": "tx-neutral-001",
+    "orderId": "order-neutral-001",
+    "disputedLineItemIds": [
+      "line-002"
+    ],
+    "currentPolicyDigest": "4b48561a8afad65acce181ef7bd217cd300b9025f2e8458b32b26361b7b4eb19",
+    "currentTermsDigest": "c4dec141eb248cb0dfc3c6cf32266f380ec67c7f41b41c469edc6dee4b04f674"
+  }
+}

@@ -28,7 +28,10 @@ export function dispositionDigest(
 }
 
 function sameStrings(left: readonly string[], right: readonly string[]): boolean {
-  return [...left].sort().join("\n") === [...right].sort().join("\n");
+  if (left.length !== right.length) return false;
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((value, index) => value === sortedRight[index]);
 }
 
 function minorUnits(value: string): bigint | null {
@@ -121,6 +124,7 @@ export function validateLifecycle(
   const byId = new Map<string, ResolutionDisposition>();
   const childCount = new Map<string, number>();
   for (const disposition of input.dispositions) {
+    if (byId.has(disposition.dispositionId)) reasons.add("disposition_id_duplicate");
     byId.set(disposition.dispositionId, disposition);
     if (disposition.dispositionDigest !== dispositionDigest(disposition)) reasons.add("disposition_digest_mismatch");
     if (disposition.handoffDigest !== stableHandoffDigest) reasons.add("disposition_handoff_mismatch");
@@ -138,6 +142,11 @@ export function validateLifecycle(
   }
 
   if ([...childCount.values()].some((count) => count > 1)) reasons.add("supersession_fork");
+  if (
+    input.dispositions.some(
+      (disposition) => disposition.supersedesDispositionId && !byId.has(disposition.supersedesDispositionId),
+    )
+  ) reasons.add("supersession_target_missing");
   for (const start of input.dispositions) {
     const seen = new Set<string>();
     let current: ResolutionDisposition | undefined = start;
@@ -153,6 +162,17 @@ export function validateLifecycle(
 
   const operative = byId.get(input.operativeDispositionId) ?? null;
   if (!operative) reasons.add("operative_disposition_missing");
+  if (operative) {
+    const operativeChain = new Set<string>();
+    let current: ResolutionDisposition | undefined = operative;
+    while (current && !operativeChain.has(current.dispositionId)) {
+      operativeChain.add(current.dispositionId);
+      current = current.supersedesDispositionId ? byId.get(current.supersedesDispositionId) : undefined;
+    }
+    if (operativeChain.size !== byId.size && !reasons.has("supersession_target_missing")) {
+      reasons.add("disposition_graph_disconnected");
+    }
+  }
   if (
     operative &&
     (operative.reviewState === "superseded" ||
@@ -160,10 +180,17 @@ export function validateLifecycle(
       input.dispositions.some((candidate) => candidate.supersedesDispositionId === operative.dispositionId))
   ) reasons.add("superseded_disposition_operative");
 
+  if (input.executions.length > 0 && !handoff.roles.executor) reasons.add("execution_executor_missing");
+
   let latestExecution: ResolutionExecutionReceipt | null = null;
   if (operative) {
     const authorizedAmount = minorUnits(operative.authorizedRemedy.amountMinorUnits);
+    let completedAmount = 0n;
+    const executionIds = new Set<string>();
+    const completedReferences = new Set<string>();
     for (const execution of input.executions) {
+      if (executionIds.has(execution.executionId)) reasons.add("execution_id_duplicate");
+      executionIds.add(execution.executionId);
       if (
         execution.dispositionId !== operative.dispositionId ||
         execution.dispositionDigest !== operative.dispositionDigest
@@ -182,6 +209,18 @@ export function validateLifecycle(
       ) reasons.add("execution_outside_authority");
 
       if (execution.status === "completed") {
+        if (execution.nativeTransactionReference) {
+          if (completedReferences.has(execution.nativeTransactionReference)) {
+            reasons.add("execution_reference_duplicate");
+          }
+          completedReferences.add(execution.nativeTransactionReference);
+        }
+        if (executedAmount !== null) {
+          completedAmount += executedAmount;
+          if (authorizedAmount === null || completedAmount > authorizedAmount) {
+            reasons.add("execution_outside_authority");
+          }
+        }
         if (
           !execution.nativeTransactionReference ||
           !execution.receiptProof ||
@@ -197,7 +236,7 @@ export function validateLifecycle(
               candidate.signedArtifact.sha256 === execution.receiptProof?.sha256,
           )
         ) reasons.add("decision_not_execution");
-      } else if (execution.status !== "pending" && !execution.failureCode) {
+      } else if (["failed", "blocked", "unknown_outcome"].includes(execution.status) && !execution.failureCode) {
         reasons.add("execution_failure_code_missing");
       }
     }

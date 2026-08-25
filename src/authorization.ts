@@ -94,7 +94,15 @@ export async function verifyBilateralAuthorization(input: {
     signerKids.push(trusted.kid);
     roles.add(trusted.role);
   }
-  if (new Set(signerKids).size !== 2 || !roles.has("claimant") || !roles.has("respondent")) {
+  const signerPrincipalIds = input.trustedKeys
+    .filter((key) => signerKids.includes(key.kid))
+    .map((key) => key.principalId);
+  if (
+    new Set(signerKids).size !== 2 ||
+    new Set(signerPrincipalIds).size !== 2 ||
+    !roles.has("claimant") ||
+    !roles.has("respondent")
+  ) {
     throw new AuthorizationVerificationError("authorization_bilateral_missing", "Distinct claimant and respondent signatures are required.");
   }
 
@@ -108,12 +116,21 @@ export async function verifyBilateralAuthorization(input: {
   if (claims.schemaVersion !== "resolution-authorization-v1") {
     throw new AuthorizationVerificationError("authorization_schema_invalid", "Unsupported authorization schema.");
   }
-  if (Date.parse(claims.issuedAt) > input.now.getTime() || Date.parse(claims.expiresAt) <= input.now.getTime()) {
+  const issuedAt = Date.parse(claims.issuedAt);
+  const expiresAt = Date.parse(claims.expiresAt);
+  if (
+    !Number.isFinite(issuedAt) ||
+    !Number.isFinite(expiresAt) ||
+    issuedAt > input.now.getTime() ||
+    expiresAt <= input.now.getTime()
+  ) {
     throw new AuthorizationVerificationError("authorization_time_invalid", "Authorization is not active at the verification time.");
   }
 
   const expected = input.expected;
-  const exactLines = [...claims.transaction.disputedLineItemIds].sort().join("\n") === [...expected.disputedLineItemIds].sort().join("\n");
+  const claimedLines = [...claims.transaction.disputedLineItemIds].sort();
+  const expectedLines = [...expected.disputedLineItemIds].sort();
+  const exactLines = claimedLines.length === expectedLines.length && claimedLines.every((value, index) => value === expectedLines[index]);
   const bindingMatches =
     claims.transaction.transactionId === expected.transactionId &&
     claims.transaction.orderId === expected.orderId &&

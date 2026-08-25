@@ -1,5 +1,5 @@
 {
-  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-handoff-v1.schema.json",
+  "$id": "resolution-handoff-v1.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Resolution handoff v1",
   "type": "object",
@@ -86,8 +86,7 @@
         "claimant",
         "respondent",
         "recordIssuer",
-        "resolver",
-        "executor"
+        "resolver"
       ],
       "properties": {
         "claimant": {
@@ -275,7 +274,7 @@
           "const": "SHA-256"
         },
         "manifest": {
-          "$ref": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-frozen-record-manifest-v1.schema.json"
+          "$ref": "resolution-frozen-record-manifest-v1.schema.json"
         },
         "digest": {
           "type": "string",

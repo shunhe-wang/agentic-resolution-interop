@@ -4,7 +4,7 @@ This repository is a provider-neutral, executable conformance corpus for the sea
 
 It gives UCP, LCP, AP2, x402, checkout, escrow, merchant-refund, and resolver implementers the same synthetic lifecycle to pressure-test.
 
-The lifecycle keeps five things distinct: a verified commerce record, bilateral resolution authority, a frozen dispute record, a disposition or Award reference, and a separate execution receipt.
+The lifecycle keeps five things distinct: a verified commerce record, bilateral resolution authority, a frozen dispute record, a disposition or Award reference, and any later execution attempt or receipt.
 
 People's Court is the initial maintainer and one intended implementation. The core and LCP fixtures contain no People's Court or vendor-specific resolver identifiers. The UCP projection is explicitly a People's Court-governed vendor profile over the same neutral lifecycle.
 
@@ -17,13 +17,14 @@ npm ci
 npm run check
 ```
 
-The check builds the TypeScript, runs the lifecycle and security vectors, verifies official Integra LCP placement behavior for UCP, AP2, and x402, checks the corpus seal, and audits the public export boundary.
+The check builds the TypeScript, validates the committed lifecycles against the retrieval-relative JSON Schema bundle, runs the lifecycle and security vectors, verifies official Integra LCP placement behavior for UCP, AP2, and x402, checks the corpus seal, and audits the public export boundary.
 
-Expected result: 14 tests pass, 16 negative lifecycle vectors and three UCP path negatives produce their declared reason codes, both UCP pressure-test paths remain distinct, and 42 fixture files match the committed seal.
+Expected result: 31 tests pass, 24 negative lifecycle vectors and three UCP path negatives produce their declared reason codes, both core positive paths and both UCP pressure-test paths remain distinct, and 52 fixture files match the committed seal.
 
 ## Start with these public fixtures
 
 - [Protocol-neutral valid lifecycle](fixtures/core/valid/lifecycle.json)
+- [Protocol-neutral advisory lifecycle with no executor or receipt](fixtures/core/valid/advisory-lifecycle.json)
 - [Runner-neutral corpus manifest](fixtures/core/manifest.json)
 - [Escrow-held UCP path](fixtures/ucp/paths/escrow-held.json)
 - [Post-settlement merchant-refund UCP path](fixtures/ucp/paths/post-settlement-merchant-refund.json)
@@ -53,9 +54,17 @@ disposition 1 <- superseded by disposition 2
 separate bounded execution receipt
 ```
 
-The valid transaction has two line items, one disputed line, a USD 50.00 remedy ceiling, an initial disposition, a correcting final disposition, and a USD 20.00 completed refund receipt.
+The execution-positive transaction has one disputed line item, a USD 50.00 remedy ceiling, an initial disposition, a correcting final disposition, and a USD 20.00 completed refund receipt.
+
+The advisory positive uses the same transaction and disposition boundary but has no executor, execution attempt, or receipt.
+
+An empty `executions` array means that no execution artifact exists.
+
+A `not_attempted` status may be used only when an implementation needs an explicit execution-state record; it does not require a fabricated failure code or receipt.
 
 The committed authorization is a two-signature EdDSA JWS from distinct synthetic claimant and respondent principals.
+
+The unilateral negative commits the corresponding one-signature artifact and recomputes the handoff so that it isolates bilateral-authority failure.
 
 Only public verification keys are committed.
 
@@ -85,13 +94,17 @@ This repository does not duplicate it.
 
 | Surface | Version or status |
 |---|---|
-| Repository | `0.1.0` |
+| Repository | `0.1.1` |
 | Corpus schema | `agentic-resolution-interop-corpus-v1` |
 | LCP specification reported by Integra | `0.1.38` |
 | Integra packages | `0.12.1` |
 | Node.js | `>=24` |
 | Corpus seal | See [`fixtures/expected-seal.txt`](fixtures/expected-seal.txt) |
 | Package publication | Disabled with `"private": true` |
+
+The schema files use retrieval-relative identities and references.
+
+Loading them from a commit-pinned URL therefore keeps every referenced schema on the same pinned commit instead of resolving against the mutable default branch.
 
 ## What this does not claim
 

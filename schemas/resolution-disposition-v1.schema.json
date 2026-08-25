@@ -1,5 +1,5 @@
 {
-  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-disposition-v1.schema.json",
+  "$id": "resolution-disposition-v1.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Resolution disposition v1",
   "type": "object",

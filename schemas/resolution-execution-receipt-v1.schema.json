@@ -1,5 +1,5 @@
 {
-  "$id": "https://raw.githubusercontent.com/shunhe-wang/agentic-resolution-interop/main/schemas/resolution-execution-receipt-v1.schema.json",
+  "$id": "resolution-execution-receipt-v1.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Resolution execution receipt v1",
   "type": "object",

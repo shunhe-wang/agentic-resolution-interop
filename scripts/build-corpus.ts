@@ -205,6 +205,48 @@ writeJson("core/valid/expected-digests.json", {
   authorizationArtifactHash: authorization.artifactHash,
 });
 
+const advisoryLifecycle = clone(lifecycle);
+advisoryLifecycle.handoff.handoffId = "handoff-neutral-advisory-001";
+advisoryLifecycle.handoff.disputeId = "dispute-neutral-advisory-001";
+delete advisoryLifecycle.handoff.roles.executor;
+advisoryLifecycle.executions = [];
+const advisoryHandoffDigest = handoffDigest(advisoryLifecycle.handoff);
+const advisoryFirst = advisoryLifecycle.dispositions[0]!;
+advisoryFirst.dispositionId = "disposition-neutral-advisory-001";
+advisoryFirst.handoffDigest = advisoryHandoffDigest;
+advisoryFirst.signedArtifact = { artifactRef: "advisory-ruling-revision-1.json", sha256: "a".repeat(64) };
+advisoryFirst.dispositionDigest = dispositionDigest(advisoryFirst);
+const advisoryFinal = advisoryLifecycle.dispositions[1]!;
+advisoryFinal.dispositionId = "disposition-neutral-advisory-002";
+advisoryFinal.handoffDigest = advisoryHandoffDigest;
+advisoryFinal.supersedesDispositionId = advisoryFirst.dispositionId;
+advisoryFinal.signedArtifact = { artifactRef: "advisory-ruling-revision-2.json", sha256: "b".repeat(64) };
+advisoryFinal.dispositionDigest = dispositionDigest(advisoryFinal);
+advisoryLifecycle.operativeDispositionId = advisoryFinal.dispositionId;
+const validAdvisory = validateLifecycle(advisoryLifecycle, { now: new Date(FIXED_VERIFICATION_TIME) });
+if (!validAdvisory.ok) throw new Error(`valid advisory lifecycle failed: ${validAdvisory.reasonCodes.join(", ")}`);
+writeJson("core/valid/advisory-lifecycle.json", advisoryLifecycle);
+
+const unilateralAuthorization = clone(authorizationJws);
+unilateralAuthorization.signatures = unilateralAuthorization.signatures.slice(0, 1);
+writeJson("core/negative/resolution-authorization-one-signature.json", unilateralAuthorization);
+
+function resealLifecycle(value: ResolutionLifecycle): void {
+  value.handoff.frozenRecord.digest = frozenRecordDigest(value.handoff.frozenRecord.manifest);
+  const digest = handoffDigest(value.handoff);
+  for (const disposition of value.dispositions) {
+    disposition.handoffDigest = digest;
+    disposition.frozenRecordDigest = value.handoff.frozenRecord.digest;
+    disposition.dispositionDigest = dispositionDigest(disposition);
+  }
+  const operative = value.dispositions.find((disposition) => disposition.dispositionId === value.operativeDispositionId);
+  if (operative) {
+    for (const execution of value.executions) {
+      if (execution.dispositionId === operative.dispositionId) execution.dispositionDigest = operative.dispositionDigest;
+    }
+  }
+}
+
 const mutations: Array<{ id: string; code: string; mutate: (value: ResolutionLifecycle) => void }> = [
   { id: "missing-frozen-record-digest", code: "frozen_record_digest_missing", mutate: (v) => { v.handoff.frozenRecord.digest = ""; } },
   { id: "changed-frozen-record", code: "frozen_record_digest_mismatch", mutate: (v) => { v.handoff.frozenRecord.manifest.includedArtifacts[0]!.sha256 = "a".repeat(64); } },
@@ -212,16 +254,108 @@ const mutations: Array<{ id: string; code: string; mutate: (value: ResolutionLif
   { id: "wrong-line-item", code: "disputed_line_reference_mismatch", mutate: (v) => { v.handoff.transaction.disputedLineItemIds = ["line-001"]; } },
   { id: "stale-policy", code: "policy_digest_stale", mutate: (v) => { v.handoff.policy.digest = "a".repeat(64); } },
   { id: "stale-terms", code: "terms_digest_stale", mutate: (v) => { v.handoff.terms.digest = "b".repeat(64); } },
-  { id: "missing-party-authority", code: "party_authority_missing", mutate: (v) => { v.handoff.authority.respondentAuthorityRef = ""; } },
+  {
+    id: "missing-party-authority",
+    code: "party_authority_missing",
+    mutate: (v) => {
+      v.handoff.authority.respondentAuthorityRef = "";
+      v.handoff.authority.authorizationArtifactHash = sha256Canonical(unilateralAuthorization);
+      v.handoff.frozenRecord.manifest.authorityRefs = [v.handoff.authority.claimantAuthorityRef];
+      resealLifecycle(v);
+    },
+  },
   { id: "remedy-above-ceiling", code: "remedy_above_ceiling", mutate: (v) => { v.dispositions[1]!.authorizedRemedy.amountMinorUnits = "5001"; } },
   { id: "disposition-other-record", code: "disposition_record_mismatch", mutate: (v) => { v.dispositions[1]!.frozenRecordDigest = "c".repeat(64); } },
   { id: "superseded-operative", code: "superseded_disposition_operative", mutate: (v) => { v.operativeDispositionId = v.dispositions[0]!.dispositionId; } },
   { id: "supersession-cycle", code: "supersession_cycle", mutate: (v) => { v.dispositions[0]!.supersedesDispositionId = v.dispositions[1]!.dispositionId; } },
   { id: "supersession-fork", code: "supersession_fork", mutate: (v) => { const third = clone(v.dispositions[1]!); third.dispositionId = "disposition-neutral-003"; third.dispositionDigest = dispositionDigest(third); v.dispositions.push(third); } },
+  { id: "duplicate-disposition-id", code: "disposition_id_duplicate", mutate: (v) => { v.dispositions.push(clone(v.dispositions[0]!)); } },
+  {
+    id: "missing-supersession-target",
+    code: "supersession_target_missing",
+    mutate: (v) => {
+      v.dispositions[1]!.supersedesDispositionId = "disposition-does-not-exist";
+      resealLifecycle(v);
+    },
+  },
+  {
+    id: "disconnected-disposition-graph",
+    code: "disposition_graph_disconnected",
+    mutate: (v) => {
+      const disconnected = clone(v.dispositions[1]!);
+      disconnected.dispositionId = "disposition-neutral-003";
+      delete disconnected.supersedesDispositionId;
+      disconnected.dispositionDigest = dispositionDigest(disconnected);
+      v.dispositions.push(disconnected);
+    },
+  },
   { id: "execution-other-disposition", code: "execution_disposition_mismatch", mutate: (v) => { v.executions[0]!.dispositionId = v.dispositions[0]!.dispositionId; } },
+  {
+    id: "execution-without-executor",
+    code: "execution_executor_missing",
+    mutate: (v) => {
+      delete v.handoff.roles.executor;
+      resealLifecycle(v);
+    },
+  },
   { id: "execution-outside-authorization", code: "execution_outside_authority", mutate: (v) => { v.executions[0]!.amountMinorUnits = "2001"; } },
+  {
+    id: "duplicate-execution-id",
+    code: "execution_id_duplicate",
+    mutate: (v) => {
+      const replay = clone(v.executions[0]!);
+      replay.status = "pending";
+      replay.amountMinorUnits = "0";
+      replay.nativeTransactionReference = null;
+      replay.receiptProof = null;
+      replay.recordedAt = "2026-08-26T12:06:00.000Z";
+      v.executions.push(replay);
+    },
+  },
+  {
+    id: "duplicate-execution-reference",
+    code: "execution_reference_duplicate",
+    mutate: (v) => {
+      v.executions[0]!.amountMinorUnits = "1000";
+      const replay = clone(v.executions[0]!);
+      replay.executionId = "execution-neutral-002";
+      replay.recordedAt = "2026-08-26T12:06:00.000Z";
+      replay.receiptProof = {
+        artifactRef: "synthetic-refund-receipt-002.json",
+        sha256: "c".repeat(64),
+        verificationStatus: "passed",
+      };
+      v.executions.push(replay);
+    },
+  },
+  {
+    id: "cumulative-execution-overrun",
+    code: "execution_outside_authority",
+    mutate: (v) => {
+      const replay = clone(v.executions[0]!);
+      replay.executionId = "execution-neutral-002";
+      replay.nativeTransactionReference = "refund:synthetic:002";
+      replay.recordedAt = "2026-08-26T12:06:00.000Z";
+      replay.receiptProof = {
+        artifactRef: "synthetic-refund-receipt-002.json",
+        sha256: "c".repeat(64),
+        verificationStatus: "passed",
+      };
+      v.executions.push(replay);
+    },
+  },
   { id: "completed-without-receipt", code: "execution_receipt_missing", mutate: (v) => { v.executions[0]!.receiptProof = null; } },
   { id: "decision-as-execution", code: "decision_not_execution", mutate: (v) => { v.executions[0]!.receiptProof = { ...v.dispositions[1]!.signedArtifact, verificationStatus: "passed" }; } },
+  {
+    id: "line-item-delimiter-collision",
+    code: "disputed_line_reference_mismatch",
+    mutate: (v) => {
+      v.handoff.transaction.disputedLineItemIds = ["line-002\nline-extra"];
+      v.handoff.frozenRecord.manifest.disputedLineItemIds = ["line-002", "line-extra"];
+      v.expected.disputedLineItemIds = ["line-002", "line-extra"];
+      resealLifecycle(v);
+    },
+  },
 ];
 const negativeIndex = [];
 for (const mutation of mutations) {
@@ -441,10 +575,11 @@ writeJson("lcp/protocols/input/x402.json", {
 
 writeJson("core/manifest.json", {
   schemaVersion: "agentic-resolution-interop-corpus-v1",
-  corpusVersion: "0.1.0",
+  corpusVersion: "0.1.1",
   synthetic: true,
   validationTime: FIXED_VERIFICATION_TIME,
   validJourney: "valid/lifecycle.json",
+  advisoryJourney: "valid/advisory-lifecycle.json",
   authorization: {
     jws: "valid/resolution-authorization-v1.json",
     publicKeys: "valid/resolution-authorization-public-keys.json",
@@ -464,9 +599,10 @@ writeJson("core/manifest.json", {
     "Verifier-local observation metadata is excluded from stable handoff identity.",
     "A superseding disposition does not overwrite its predecessor.",
     "A disposition never proves execution.",
+    "A final advisory disposition does not require an executor, execution attempt, or receipt.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization.",
   ],
-  contentDigest: sha256Canonical({ lifecycle, negativeIndex }),
+  contentDigest: sha256Canonical({ lifecycle, advisoryLifecycle, negativeIndex }),
 });
 
-console.log(`built ${mutations.length} stable lifecycle negatives, two UCP paths, and ${ucpNegativeVectors.length} UCP negatives`);
+console.log(`built two valid core lifecycles, ${mutations.length} stable lifecycle negatives, two UCP paths, and ${ucpNegativeVectors.length} UCP negatives`);

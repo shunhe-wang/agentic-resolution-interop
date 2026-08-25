@@ -8,8 +8,16 @@ The core defines four artifacts.
 
 1. `resolution-handoff-v1` binds the transaction, disputed lines, bilateral authority references, exact policy and terms digests, evidence manifest, resolver, and remedy ceilings.
 2. `resolution-disposition-v1` binds an outcome and bounded remedy to the frozen handoff and supports append-only supersession.
-3. `resolution-execution-receipt-v1` identifies the exact operative disposition and records a separate execution attempt or result.
-4. `resolution-authorization-v1` demonstrates distinct claimant and respondent signatures over the transaction, legal context, claim scope, appointment, and ceiling.
+3. `resolution-execution-receipt-v1` identifies the exact operative disposition and records a separate execution attempt or result when one exists.
+4. `resolution-authorization-v1` demonstrates signatures from distinct claimant and respondent principals over the transaction, legal context, claim scope, appointment, and ceiling.
+
+The executor role is optional at handoff.
+
+The advisory positive reaches a final disposition with no executor and no execution artifacts.
+
+The execution-positive path rejects duplicate execution identities, duplicate completed native transaction references, and cumulative completed amounts above the operative disposition.
+
+Disposition ids are unique and every retained disposition belongs to the single operative supersession chain.
 
 Verifier-local observation time and fetch metadata do not change stable handoff identity.
 
