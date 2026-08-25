@@ -44,6 +44,8 @@ The surrounding corpus wrapper declares `extensionPlacement: "not_asserted"` bec
 - [Invalid: dispute adjustment without bilateral authority](../../fixtures/acp/negative/dispute-adjustment-without-bilateral-authority.json)
 - [Invalid: disposition reused as execution evidence](../../fixtures/acp/negative/disposition-as-execution.json)
 
+The separate [GET Order reconciliation matrix](get-order-reconciliation.md) covers missed-webhook recovery and cross-channel ordering without asserting that revision metadata already exists in ACP.
+
 Each file is synthetic and deterministic.
 
 The pinned structural check covers only the ACP `Order` fields exercised by this vector.

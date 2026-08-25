@@ -5,6 +5,11 @@
   "synthetic": true,
   "files": [
     {
+      "path": "acp/get-order/reconciliation-matrix.json",
+      "sha256": "1d3f5ff53e4a13643e4249928524c3fb1e8a624320414cbc3b1da43617a170f6",
+      "bytes": 9119
+    },
+    {
       "path": "acp/negative/disposition-as-execution.json",
       "sha256": "be4b3d7d1558527942113a59f8965b56f1f466cff1cf68ea0851e8ec555574c0",
       "bytes": 13682
@@ -26,8 +31,8 @@
     },
     {
       "path": "core/manifest.json",
-      "sha256": "bc41d22cfd136adf934ecc3255f28f993294cd1e2af37f3bbf7935e570627ff7",
-      "bytes": 5311
+      "sha256": "d959a78f4a2168b7b9f08117fa01b38d08925be32924c5c4f3a803527841c730",
+      "bytes": 5389
     },
     {
       "path": "core/negative/changed-frozen-record.json",

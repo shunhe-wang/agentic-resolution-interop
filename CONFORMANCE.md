@@ -78,6 +78,16 @@ It must reject reuse of the operative disposition artifact as execution evidence
 
 The pinned source schema check covers only the ACP `Order` fields exercised by this vector.
 
+## ACP GET Order reconciliation behavior
+
+A conforming runner must advance to a newer merchant-scoped revision regardless of whether it arrives by webhook or GET.
+
+It must ignore an older revision, classify the same revision and digest as a replay, and reject the same revision with a different digest as a conflict.
+
+It must treat a matching ETag / 304 observation as cache validation without using the ETag as a cross-channel ordering signal.
+
+The informative revision envelope is not asserted to be current ACP schema.
+
 ## Reproduction
 
 ```bash

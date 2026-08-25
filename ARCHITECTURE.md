@@ -79,6 +79,12 @@ The committed negatives enforce the two boundaries most likely to collapse in an
 
 The pinned source schema check remains structural, while the native webhook check proves only the HMAC and replay-window mechanics under public synthetic test material.
 
+The GET Order reducer is a sibling ACP profile component.
+
+It compares merchant-scoped revisions and canonical order digests across webhook and GET observations, preserves the newest accepted snapshot, and treats ETag as cache metadata only.
+
+Revision placement remains unasserted because ACP issue #234 has not defined a cross-channel ordering field.
+
 ## AP2 and x402 placement checks
 
 The official Integra AP2 check adds `metadata.legalContext` without changing the opaque mandate bytes.
