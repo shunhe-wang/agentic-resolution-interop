@@ -41,12 +41,13 @@ The surrounding corpus wrapper declares `extensionPlacement: "not_asserted"` bec
 
 - [Valid contested transaction to external resolution](../../fixtures/acp/valid/contested-external-resolution.json)
 - [Invalid: changed webhook signature](../../fixtures/acp/negative/webhook-signature-mismatch.json)
+- [Invalid: contested amount differs from the requested remedy](../../fixtures/acp/negative/contested-amount-mismatch.json)
 - [Invalid: dispute adjustment without bilateral authority](../../fixtures/acp/negative/dispute-adjustment-without-bilateral-authority.json)
 - [Invalid: disposition reused as execution evidence](../../fixtures/acp/negative/disposition-as-execution.json)
 
 Each file is synthetic and deterministic.
 
-The pinned structural check covers only the ACP `Order` fields exercised by this vector.
+The source check is a manual subset over the ACP `Order` fields exercised by this vector. The pinned schema URL is review context, not a claim of full JSON Schema validation.
 
 The native verifier records `authenticity: "synthetic_test_key_only"` and does not claim to authenticate a real merchant, establish legal consent, decide a dispute, or execute a refund.
 
