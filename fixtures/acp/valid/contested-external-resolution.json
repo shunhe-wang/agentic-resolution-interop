@@ -6,15 +6,28 @@
     "protocol": "agentic_checkout_acp",
     "upstreamRevision": "7fdd78df677a94dce04c770644b0fbbb1401272b",
     "orderSchema": "https://raw.githubusercontent.com/agentic-commerce-protocol/agentic-commerce-protocol/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/unreleased/json-schema/schema.agentic_checkout.json#/$defs/Order",
+    "webhook": {
+      "endpoint": "/agentic_checkout/webhooks/order_events",
+      "contentType": "application/json",
+      "rawBody": "{\"type\":\"order_update\",\"data\":{\"type\":\"order\",\"id\":\"order-neutral-001\",\"checkout_session_id\":\"checkout-neutral-001\",\"permalink_url\":\"https://merchant.example.test/orders/order-neutral-001\",\"status\":\"processing\",\"line_items\":[{\"id\":\"line-002\",\"title\":\"Undelivered synthetic item\",\"quantity\":{\"ordered\":1,\"current\":1,\"fulfilled\":0},\"unit_price\":2500,\"subtotal\":2500,\"status\":\"processing\"}],\"adjustments\":[{\"id\":\"adjustment-dispute-001\",\"type\":\"dispute\",\"occurred_at\":\"2026-08-24T15:55:00.000Z\",\"status\":\"pending\",\"line_items\":[{\"id\":\"line-002\",\"quantity\":1}],\"amount\":2500,\"currency\":\"usd\",\"description\":\"Buyer contests non-delivery of one synthetic item.\",\"reason\":\"non_delivery\"}],\"totals\":[{\"type\":\"total\",\"display_text\":\"Total\",\"amount\":2500},{\"type\":\"amount_refunded\",\"display_text\":\"Refunded\",\"amount\":0}]}}",
+      "merchantSignature": "t=1787587200,v1=7489e9b511afa9d392d70a9afef13a6e2d65953b5e169710cba252fbbc7a9485"
+    },
     "verification": {
-      "schemaVersion": "synthetic-acp-record-verification-v1",
+      "schemaVersion": "synthetic-acp-webhook-verification-v1",
       "upstreamRevision": "7fdd78df677a94dce04c770644b0fbbb1401272b",
       "orderSchema": "https://raw.githubusercontent.com/agentic-commerce-protocol/agentic-commerce-protocol/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/unreleased/json-schema/schema.agentic_checkout.json#/$defs/Order",
+      "webhookSpec": "https://raw.githubusercontent.com/agentic-commerce-protocol/agentic-commerce-protocol/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/unreleased/openapi/openapi.agentic_checkout_webhook.yaml",
+      "signatureAlgorithm": "HMAC-SHA256",
+      "signedPayload": "timestamp.raw_body",
+      "signatureToleranceSeconds": 300,
       "canonicalization": "RFC8785",
       "digestAlgorithm": "SHA-256",
       "orderSha256": "90c066f980d26b1caf3f25a4827d95dc43dea4f92c6fd44bd908d50681d405d0",
+      "rawBodySha256": "a1c1454ad136f159a6bd7327b287143abbf1e936c4c148f81739b97da31757ef",
+      "merchantSignatureSha256": "85841c4a124e29ed9a7b3fbb73219c637078bd342545c1f68b9752d75c91e179",
       "validationScope": "pinned-order-fields-exercised-by-this-vector",
-      "authenticity": "not_claimed"
+      "verificationStatus": "passed",
+      "authenticity": "synthetic_test_key_only"
     },
     "order": {
       "type": "order",
@@ -149,7 +162,7 @@
             },
             {
               "artifactId": "acp-record-verification.json",
-              "sha256": "bb844dbe1a62e89ca31d2b70fb6c0890f7bdacead7301e75c5fecfcf627c7dbd",
+              "sha256": "149cf5999d5aa94bc675bba0c43293016388e58ef1e554ad2312b31816c93b6c",
               "mediaType": "application/json",
               "source": "synthetic-pinned-acp-order-check"
             },
@@ -203,7 +216,7 @@
             }
           ]
         },
-        "digest": "f36d0fb4ad9851dbbbd5c2e8068602f9822ff1e6e2efde43d7ad45e83b21f11a"
+        "digest": "63d0607e4083e6e4bee4fea3d7ebf31fe9a2e940092afd53b6a7fcb85ab5451e"
       },
       "remedyCeilings": [
         {
@@ -221,7 +234,7 @@
       "expiresAt": "2027-08-24T16:00:00.000Z",
       "nativeProof": {
         "artifactRef": "#/source/verification",
-        "sha256": "bb844dbe1a62e89ca31d2b70fb6c0890f7bdacead7301e75c5fecfcf627c7dbd",
+        "sha256": "149cf5999d5aa94bc675bba0c43293016388e58ef1e554ad2312b31816c93b6c",
         "verificationMethod": "synthetic-pinned-acp-order-structure-and-binding-check"
       }
     },
@@ -229,10 +242,10 @@
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-001",
-        "dispositionDigest": "6ca214a80e6b070334f1bd1ddb74a9a3d41c6b3e372f521a82e27d60b8ea78d0",
-        "handoffDigest": "907e7d67a3c1c491d152a525b6c93a26137895c5da1d88c47789818ac21acbf5",
+        "dispositionDigest": "984c43fec84b2d614fed888fa07b986fa8edc63747a5f3f4e906ebd086d09628",
+        "handoffDigest": "269a5463d40ee772ffab0b88f31e86730c59394c51a75d49c9e41e3ae5ba2975",
         "transactionId": "tx-neutral-001",
-        "frozenRecordDigest": "f36d0fb4ad9851dbbbd5c2e8068602f9822ff1e6e2efde43d7ad45e83b21f11a",
+        "frozenRecordDigest": "63d0607e4083e6e4bee4fea3d7ebf31fe9a2e940092afd53b6a7fcb85ab5451e",
         "outcome": "claim_granted",
         "authorizedRemedy": {
           "action": "refund",
@@ -250,10 +263,10 @@
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "8a51a233f0bd6f37e6b202ead921eaeb551f950a44f688abe94da258d52cb49a",
-        "handoffDigest": "907e7d67a3c1c491d152a525b6c93a26137895c5da1d88c47789818ac21acbf5",
+        "dispositionDigest": "9ff2f8c448ad999b5e5bdbebd69b72eb0f77ee488ec4515f7aebbf48f7d459c3",
+        "handoffDigest": "269a5463d40ee772ffab0b88f31e86730c59394c51a75d49c9e41e3ae5ba2975",
         "transactionId": "tx-neutral-001",
-        "frozenRecordDigest": "f36d0fb4ad9851dbbbd5c2e8068602f9822ff1e6e2efde43d7ad45e83b21f11a",
+        "frozenRecordDigest": "63d0607e4083e6e4bee4fea3d7ebf31fe9a2e940092afd53b6a7fcb85ab5451e",
         "outcome": "claim_partially_granted",
         "authorizedRemedy": {
           "action": "refund",
@@ -276,7 +289,7 @@
         "schemaVersion": "resolution-execution-receipt-v1",
         "executionId": "execution-neutral-001",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "8a51a233f0bd6f37e6b202ead921eaeb551f950a44f688abe94da258d52cb49a",
+        "dispositionDigest": "9ff2f8c448ad999b5e5bdbebd69b72eb0f77ee488ec4515f7aebbf48f7d459c3",
         "action": "refund",
         "currency": "USD",
         "amountMinorUnits": "2000",

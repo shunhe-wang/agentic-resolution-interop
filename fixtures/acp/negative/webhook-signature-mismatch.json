@@ -10,7 +10,7 @@
       "endpoint": "/agentic_checkout/webhooks/order_events",
       "contentType": "application/json",
       "rawBody": "{\"type\":\"order_update\",\"data\":{\"type\":\"order\",\"id\":\"order-neutral-001\",\"checkout_session_id\":\"checkout-neutral-001\",\"permalink_url\":\"https://merchant.example.test/orders/order-neutral-001\",\"status\":\"processing\",\"line_items\":[{\"id\":\"line-002\",\"title\":\"Undelivered synthetic item\",\"quantity\":{\"ordered\":1,\"current\":1,\"fulfilled\":0},\"unit_price\":2500,\"subtotal\":2500,\"status\":\"processing\"}],\"adjustments\":[{\"id\":\"adjustment-dispute-001\",\"type\":\"dispute\",\"occurred_at\":\"2026-08-24T15:55:00.000Z\",\"status\":\"pending\",\"line_items\":[{\"id\":\"line-002\",\"quantity\":1}],\"amount\":2500,\"currency\":\"usd\",\"description\":\"Buyer contests non-delivery of one synthetic item.\",\"reason\":\"non_delivery\"}],\"totals\":[{\"type\":\"total\",\"display_text\":\"Total\",\"amount\":2500},{\"type\":\"amount_refunded\",\"display_text\":\"Refunded\",\"amount\":0}]}}",
-      "merchantSignature": "t=1787587200,v1=7489e9b511afa9d392d70a9afef13a6e2d65953b5e169710cba252fbbc7a9485"
+      "merchantSignature": "t=1787587200,v1=7489e9b511afa9d392d70a9afef13a6e2d65953b5e169710cba252fbbc7a9480"
     },
     "verification": {
       "schemaVersion": "synthetic-acp-webhook-verification-v1",
@@ -300,8 +300,8 @@
         "providerRef": "provider:synthetic-refund-service",
         "recordedAt": "2026-08-26T12:05:00.000Z",
         "receiptProof": {
-          "artifactRef": "award-revision-2.json",
-          "sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+          "artifactRef": "synthetic-refund-receipt.json",
+          "sha256": "9999999999999999999999999999999999999999999999999999999999999999",
           "verificationStatus": "passed"
         }
       }
@@ -319,8 +319,7 @@
   "expected": {
     "valid": false,
     "reasonCodes": [
-      "acp_execution_not_separate",
-      "acp_lifecycle_invalid"
+      "acp_webhook_signature_invalid"
     ]
   }
 }

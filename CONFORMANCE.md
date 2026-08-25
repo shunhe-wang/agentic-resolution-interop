@@ -66,11 +66,17 @@ A conforming ACP test-vector runner must preserve the source `Order` without add
 
 The source `dispute` adjustment must remain a contest signal rather than resolution authority.
 
+The runner must verify `Merchant-Signature` over `timestamp + "." + raw_body` with HMAC-SHA256 and reject signatures outside the 300-second replay window.
+
+The committed HMAC key is deterministic public test material, so this check proves native ACP webhook mechanics but not real merchant identity.
+
+It must reject a changed signature with `acp_webhook_signature_invalid`.
+
 The runner must reject a handoff that lacks separate bilateral authority with `acp_resolution_authority_missing`.
 
 It must reject reuse of the operative disposition artifact as execution evidence with `acp_execution_not_separate`.
 
-The pinned source check covers only the ACP `Order` fields exercised by this vector and does not authenticate the merchant or claim ACP-native signature verification.
+The pinned source schema check covers only the ACP `Order` fields exercised by this vector.
 
 ## Reproduction
 

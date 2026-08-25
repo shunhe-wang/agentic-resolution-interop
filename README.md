@@ -19,7 +19,7 @@ npm run check
 
 The check builds the TypeScript, runs the lifecycle, adapter, and security vectors, verifies official Integra LCP placement behavior for UCP, AP2, and x402, checks the corpus seal, and audits the public export boundary.
 
-Expected result: 27 tests pass, 16 core negative lifecycle vectors, eight Integra adapter negatives, three UCP path negatives, and two ACP negatives produce their declared reason codes, both UCP pressure-test paths remain distinct, and 51 fixture files match the committed seal.
+Expected result: 30 tests pass, 16 core negative lifecycle vectors, eight Integra adapter negatives, three UCP path negatives, and three ACP negatives produce their declared reason codes, both UCP pressure-test paths remain distinct, and 52 fixture files match the committed seal.
 
 ## Start with these public fixtures
 
@@ -71,7 +71,9 @@ The informative ACP test vector pins a source `Order` with a pending `dispute` a
 
 It does not add fields to the source ACP `Order` or assert where an ACP extension belongs.
 
-Its structural source check explicitly does not claim authenticity.
+The profile verifies ACP's exact webhook HMAC construction and replay window using public deterministic test material.
+
+That proves native verification mechanics, not real merchant identity or production trust.
 
 The UCP projection is the first operational profile because it exposes both execution postures requested for pressure testing.
 

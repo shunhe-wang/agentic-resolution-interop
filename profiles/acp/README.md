@@ -4,7 +4,7 @@ This profile exercises the seam discussed in [ACP Discussion #298](https://githu
 
 It is a test vector, not an ACP extension proposal.
 
-The source `Order` is pinned to ACP commit `7fdd78df677a94dce04c770644b0fbbb1401272b` and its unreleased `Order` schema.
+The source `Order` and webhook contract are pinned to ACP commit `7fdd78df677a94dce04c770644b0fbbb1401272b`.
 
 The source order has one `dispute` adjustment in `pending` state for one undelivered line item.
 
@@ -25,13 +25,22 @@ The valid vector therefore requires separate claimant and respondent authority r
 
 It also requires the execution receipt to identify the operative disposition while remaining a distinct artifact.
 
-The source ACP `Order` is preserved without added extension fields.
+The source ACP `Order` is preserved without added extension fields inside an exact `order_update` webhook body.
+
+The profile recomputes ACP's native `Merchant-Signature` rule: HMAC-SHA256 over `timestamp + "." + raw_body` with the recommended 300-second tolerance.
+
+The committed key is public deterministic test material, not a credential.
+
+Passing this check proves the native signing and replay-window mechanics for the exact synthetic bytes.
+
+It does not authenticate a real merchant or establish production trust.
 
 The surrounding corpus wrapper declares `extensionPlacement: "not_asserted"` because ACP extension placement is unsettled.
 
 ## Vectors
 
 - [Valid contested transaction to external resolution](../../fixtures/acp/valid/contested-external-resolution.json)
+- [Invalid: changed webhook signature](../../fixtures/acp/negative/webhook-signature-mismatch.json)
 - [Invalid: dispute adjustment without bilateral authority](../../fixtures/acp/negative/dispute-adjustment-without-bilateral-authority.json)
 - [Invalid: disposition reused as execution evidence](../../fixtures/acp/negative/disposition-as-execution.json)
 
@@ -39,7 +48,7 @@ Each file is synthetic and deterministic.
 
 The pinned structural check covers only the ACP `Order` fields exercised by this vector.
 
-It explicitly records `authenticity: "not_claimed"` and does not claim to authenticate a merchant, verify an ACP-native signature, establish legal consent, decide a dispute, or execute a refund.
+The native verifier records `authenticity: "synthetic_test_key_only"` and does not claim to authenticate a real merchant, establish legal consent, decide a dispute, or execute a refund.
 
 ## Reproduce
 

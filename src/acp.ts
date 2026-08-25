@@ -1,10 +1,21 @@
-import { sha256Canonical } from "./canonical.js";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import { sha256Bytes, sha256Canonical } from "./canonical.js";
 import { dispositionDigest, frozenRecordDigest, handoffDigest, validateLifecycle } from "./lifecycle.js";
 import type { ResolutionLifecycle } from "./types.js";
 
 export const ACP_UPSTREAM_REVISION = "7fdd78df677a94dce04c770644b0fbbb1401272b";
 export const ACP_ORDER_SCHEMA_URL =
   `https://raw.githubusercontent.com/agentic-commerce-protocol/agentic-commerce-protocol/${ACP_UPSTREAM_REVISION}/spec/unreleased/json-schema/schema.agentic_checkout.json#/$defs/Order`;
+export const ACP_WEBHOOK_SPEC_URL =
+  `https://raw.githubusercontent.com/agentic-commerce-protocol/agentic-commerce-protocol/${ACP_UPSTREAM_REVISION}/spec/unreleased/openapi/openapi.agentic_checkout_webhook.yaml`;
+export const ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS = 300;
+
+// Public deterministic test material. This is intentionally not a credential and proves
+// ACP webhook verification mechanics only, never merchant identity or production trust.
+export const ACP_SYNTHETIC_WEBHOOK_TEST_KEY = Buffer.from(
+  "agentic-resolution-interop/acp/synthetic-webhook-test-key/v1",
+  "utf8",
+);
 
 export type AcpOrderAdjustment = {
   id: string;
@@ -37,15 +48,34 @@ export type AcpSourceOrder = {
   totals?: Array<Record<string, unknown>>;
 };
 
+export type AcpWebhookEvent = {
+  type: "order_update";
+  data: AcpSourceOrder;
+};
+
+export type AcpWebhookRequest = {
+  endpoint: "/agentic_checkout/webhooks/order_events";
+  contentType: "application/json";
+  rawBody: string;
+  merchantSignature: string;
+};
+
 export type AcpSourceVerification = {
-  schemaVersion: "synthetic-acp-record-verification-v1";
+  schemaVersion: "synthetic-acp-webhook-verification-v1";
   upstreamRevision: typeof ACP_UPSTREAM_REVISION;
   orderSchema: typeof ACP_ORDER_SCHEMA_URL;
+  webhookSpec: typeof ACP_WEBHOOK_SPEC_URL;
+  signatureAlgorithm: "HMAC-SHA256";
+  signedPayload: "timestamp.raw_body";
+  signatureToleranceSeconds: typeof ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS;
   canonicalization: "RFC8785";
   digestAlgorithm: "SHA-256";
   orderSha256: string;
+  rawBodySha256: string;
+  merchantSignatureSha256: string;
   validationScope: "pinned-order-fields-exercised-by-this-vector";
-  authenticity: "not_claimed";
+  verificationStatus: "passed";
+  authenticity: "synthetic_test_key_only";
 };
 
 export type AcpExternalResolutionFixture = {
@@ -56,6 +86,7 @@ export type AcpExternalResolutionFixture = {
     protocol: "agentic_checkout_acp";
     upstreamRevision: typeof ACP_UPSTREAM_REVISION;
     orderSchema: typeof ACP_ORDER_SCHEMA_URL;
+    webhook: AcpWebhookRequest;
     verification: AcpSourceVerification;
     order: AcpSourceOrder;
   };
@@ -73,6 +104,9 @@ export type AcpExternalResolutionFixture = {
 
 export type AcpExternalResolutionReasonCode =
   | "acp_source_order_invalid"
+  | "acp_webhook_payload_mismatch"
+  | "acp_webhook_signature_invalid"
+  | "acp_webhook_timestamp_invalid"
   | "acp_contested_adjustment_missing"
   | "acp_order_binding_mismatch"
   | "acp_external_resolver_missing"
@@ -88,6 +122,56 @@ const validDate = (value: string): number | null => {
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? parsed : null;
 };
+
+export function signAcpWebhook(
+  rawBody: string,
+  timestamp: number,
+  sharedKey: Uint8Array,
+): string {
+  if (!Number.isSafeInteger(timestamp) || timestamp < 0) {
+    throw new TypeError("ACP webhook timestamp must be a non-negative safe integer.");
+  }
+  const signature = acpWebhookSignatureHex(rawBody, timestamp, sharedKey);
+  return `t=${timestamp},v1=${signature}`;
+}
+
+function acpWebhookSignatureHex(
+  rawBody: string,
+  timestamp: number,
+  sharedKey: Uint8Array,
+): string {
+  return createHmac("sha256", sharedKey)
+    .update(`${timestamp}.${rawBody}`, "utf8")
+    .digest("hex");
+}
+
+export function verifyAcpWebhook(
+  request: AcpWebhookRequest,
+  options: { now: Date; sharedKey: Uint8Array },
+): AcpExternalResolutionReasonCode[] {
+  const reasons = new Set<AcpExternalResolutionReasonCode>();
+  const match = /^t=(\d+),v1=([a-fA-F0-9]{64})$/.exec(request.merchantSignature);
+  if (!match) return ["acp_webhook_signature_invalid"];
+
+  const timestamp = Number(match[1]);
+  const nowSeconds = Math.floor(options.now.getTime() / 1000);
+  if (!Number.isSafeInteger(timestamp) || timestamp < 0) {
+    return ["acp_webhook_timestamp_invalid"];
+  }
+  if (
+    !Number.isSafeInteger(nowSeconds) ||
+    Math.abs(nowSeconds - timestamp) > ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS
+  ) reasons.add("acp_webhook_timestamp_invalid");
+
+  const expected = acpWebhookSignatureHex(request.rawBody, timestamp, options.sharedKey);
+  const supplied = match[2]!.toLowerCase();
+  const expectedBytes = Buffer.from(expected, "hex");
+  const suppliedBytes = Buffer.from(supplied, "hex");
+  if (expectedBytes.length !== suppliedBytes.length || !timingSafeEqual(expectedBytes, suppliedBytes)) {
+    reasons.add("acp_webhook_signature_invalid");
+  }
+  return [...reasons].sort();
+}
 
 export function sealAcpExternalResolutionLifecycle(
   source: ResolutionLifecycle,
@@ -142,10 +226,10 @@ export function sealAcpExternalResolutionLifecycle(
 
 export function validateAcpExternalResolutionFixture(
   fixture: AcpExternalResolutionFixture,
-  options: { now: Date },
+  options: { now: Date; webhookSharedKey: Uint8Array },
 ): AcpExternalResolutionReasonCode[] {
   const reasons = new Set<AcpExternalResolutionReasonCode>();
-  const { order, verification } = fixture.source;
+  const { order, verification, webhook } = fixture.source;
   const adjustment = order.adjustments?.find(
     (candidate) => candidate.id === fixture.mapping.contestedAdjustmentId,
   );
@@ -154,6 +238,11 @@ export function validateAcpExternalResolutionFixture(
     fixture.source.protocol !== "agentic_checkout_acp" ||
     fixture.source.upstreamRevision !== ACP_UPSTREAM_REVISION ||
     fixture.source.orderSchema !== ACP_ORDER_SCHEMA_URL ||
+    verification.schemaVersion !== "synthetic-acp-webhook-verification-v1" ||
+    verification.webhookSpec !== ACP_WEBHOOK_SPEC_URL ||
+    verification.signatureAlgorithm !== "HMAC-SHA256" ||
+    verification.signedPayload !== "timestamp.raw_body" ||
+    verification.signatureToleranceSeconds !== ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS ||
     order.type !== "order" ||
     !order.id ||
     !order.checkout_session_id ||
@@ -163,9 +252,35 @@ export function validateAcpExternalResolutionFixture(
     verification.canonicalization !== "RFC8785" ||
     verification.digestAlgorithm !== "SHA-256" ||
     verification.validationScope !== "pinned-order-fields-exercised-by-this-vector" ||
-    verification.authenticity !== "not_claimed" ||
+    verification.verificationStatus !== "passed" ||
+    verification.authenticity !== "synthetic_test_key_only" ||
     verification.orderSha256 !== sha256Canonical(order)
   ) reasons.add("acp_source_order_invalid");
+
+  if (verification.rawBodySha256 !== sha256Bytes(webhook.rawBody)) {
+    reasons.add("acp_webhook_payload_mismatch");
+  }
+  if (verification.merchantSignatureSha256 !== sha256Bytes(webhook.merchantSignature)) {
+    reasons.add("acp_webhook_signature_invalid");
+  }
+
+  let webhookEvent: AcpWebhookEvent | null = null;
+  try {
+    webhookEvent = JSON.parse(webhook.rawBody) as AcpWebhookEvent;
+  } catch {
+    reasons.add("acp_webhook_payload_mismatch");
+  }
+  if (
+    webhook.endpoint !== "/agentic_checkout/webhooks/order_events" ||
+    webhook.contentType !== "application/json" ||
+    webhookEvent?.type !== "order_update" ||
+    !webhookEvent.data ||
+    sha256Canonical(webhookEvent.data) !== sha256Canonical(order)
+  ) reasons.add("acp_webhook_payload_mismatch");
+  for (const reason of verifyAcpWebhook(webhook, {
+    now: options.now,
+    sharedKey: options.webhookSharedKey,
+  })) reasons.add(reason);
 
   if (
     !adjustment ||

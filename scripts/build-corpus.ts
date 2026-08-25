@@ -5,8 +5,12 @@ import { buildBundle, type Artifact } from "@integraledger/lcp-evidence";
 import { serializeReport, type VerificationReport } from "@integraledger/lcp-verify";
 import {
   ACP_ORDER_SCHEMA_URL,
+  ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
   ACP_UPSTREAM_REVISION,
+  ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS,
+  ACP_WEBHOOK_SPEC_URL,
   sealAcpExternalResolutionLifecycle,
+  signAcpWebhook,
   validateAcpExternalResolutionFixture,
   type AcpExternalResolutionFixture,
   type AcpSourceOrder,
@@ -567,15 +571,34 @@ const acpOrder: AcpSourceOrder = {
     { type: "amount_refunded", display_text: "Refunded", amount: 0 },
   ],
 };
+const acpWebhookTimestamp = Math.floor(new Date(FIXED_VERIFICATION_TIME).getTime() / 1000);
+const acpWebhookRawBody = JSON.stringify({ type: "order_update", data: acpOrder });
+const acpWebhook = {
+  endpoint: "/agentic_checkout/webhooks/order_events" as const,
+  contentType: "application/json" as const,
+  rawBody: acpWebhookRawBody,
+  merchantSignature: signAcpWebhook(
+    acpWebhookRawBody,
+    acpWebhookTimestamp,
+    ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
+  ),
+};
 const acpVerification: AcpSourceVerification = {
-  schemaVersion: "synthetic-acp-record-verification-v1",
+  schemaVersion: "synthetic-acp-webhook-verification-v1",
   upstreamRevision: ACP_UPSTREAM_REVISION,
   orderSchema: ACP_ORDER_SCHEMA_URL,
+  webhookSpec: ACP_WEBHOOK_SPEC_URL,
+  signatureAlgorithm: "HMAC-SHA256",
+  signedPayload: "timestamp.raw_body",
+  signatureToleranceSeconds: ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS,
   canonicalization: "RFC8785",
   digestAlgorithm: "SHA-256",
   orderSha256: sha256Canonical(acpOrder),
+  rawBodySha256: sha256Bytes(acpWebhookRawBody),
+  merchantSignatureSha256: sha256Bytes(acpWebhook.merchantSignature),
   validationScope: "pinned-order-fields-exercised-by-this-vector",
-  authenticity: "not_claimed",
+  verificationStatus: "passed",
+  authenticity: "synthetic_test_key_only",
 };
 const acpLifecycle = sealAcpExternalResolutionLifecycle(lifecycle, acpOrder, acpVerification);
 const validAcpFixture: AcpExternalResolutionFixture = {
@@ -586,6 +609,7 @@ const validAcpFixture: AcpExternalResolutionFixture = {
     protocol: "agentic_checkout_acp",
     upstreamRevision: ACP_UPSTREAM_REVISION,
     orderSchema: ACP_ORDER_SCHEMA_URL,
+    webhook: acpWebhook,
     verification: acpVerification,
     order: acpOrder,
   },
@@ -599,6 +623,7 @@ const validAcpFixture: AcpExternalResolutionFixture = {
 };
 const validAcpReasons = validateAcpExternalResolutionFixture(validAcpFixture, {
   now: new Date(FIXED_VERIFICATION_TIME),
+  webhookSharedKey: ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
 });
 if (validAcpReasons.length > 0) throw new Error(`valid ACP vector failed: ${validAcpReasons.join(", ")}`);
 writeJson("acp/valid/contested-external-resolution.json", validAcpFixture);
@@ -624,6 +649,19 @@ const acpNegativeVectors: Array<{
   id: string;
   fixture: AcpExternalResolutionFixture;
 }> = [
+  {
+    id: "webhook-signature-mismatch",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      const current = value.source.webhook.merchantSignature;
+      value.source.webhook.merchantSignature = `${current.slice(0, -1)}${current.endsWith("0") ? "1" : "0"}`;
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_webhook_signature_invalid"],
+      };
+      return value;
+    })(),
+  },
   {
     id: "dispute-adjustment-without-bilateral-authority",
     fixture: (() => {
@@ -659,6 +697,7 @@ const acpNegativeVectors: Array<{
 for (const vector of acpNegativeVectors) {
   const reasons = validateAcpExternalResolutionFixture(vector.fixture, {
     now: new Date(FIXED_VERIFICATION_TIME),
+    webhookSharedKey: ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
   });
   if (JSON.stringify(reasons) !== JSON.stringify(vector.fixture.expected.reasonCodes)) {
     throw new Error(`${vector.id} ACP vector produced ${reasons.join(", ")}`);
@@ -736,4 +775,4 @@ writeJson("core/manifest.json", {
   }),
 });
 
-console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, ${ucpNegativeVectors.length} UCP negatives, and three ACP resolution vectors`);
+console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, ${ucpNegativeVectors.length} UCP negatives, and ${acpNegativeVectors.length + 1} ACP resolution vectors`);

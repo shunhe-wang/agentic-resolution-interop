@@ -69,11 +69,15 @@ The source order remains unmodified inside an informative corpus wrapper because
 
 The adapter binds the ACP order, checkout session, and disputed line item to the protocol-neutral handoff.
 
+Before projection, it verifies the exact synthetic webhook bytes using ACP's `Merchant-Signature` HMAC-SHA256 construction and 300-second replay window.
+
+The deterministic public key material proves verifier mechanics only; production merchant authentication remains an application trust decision.
+
 The pending adjustment is evidence that the transaction is contested, not evidence of bilateral authority, resolver appointment, disposition, or execution.
 
 The committed negatives enforce the two boundaries most likely to collapse in an implementation: treating the adjustment as consent and treating the signed disposition as a refund receipt.
 
-The pinned source verification is structural only and explicitly makes no authenticity claim.
+The pinned source schema check remains structural, while the native webhook check proves only the HMAC and replay-window mechanics under public synthetic test material.
 
 ## AP2 and x402 placement checks
 
