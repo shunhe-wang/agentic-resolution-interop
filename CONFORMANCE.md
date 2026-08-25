@@ -80,6 +80,18 @@ The source check is a manual subset over the ACP `Order` fields exercised by thi
 
 The vector binds the dispute adjustment amount and currency to the requested, authorized, and executed remedy. The pinned ACP Order has no separate native payment-transaction identifier, so native transaction binding is explicitly unavailable. A later ACP-facing order update recording execution is deferred and not asserted by this vector.
 
+## ACP GET Order reconciliation behavior
+
+This matrix covers snapshot ordering and ETag cache behavior only. It does not exercise ACP #234 HTTP authorization, indistinguishable unknown/unauthorized `404` responses, or unsupported-endpoint behavior.
+
+A conforming runner must advance to a newer merchant-scoped revision regardless of whether it arrives by webhook or GET.
+
+It must ignore an older revision, classify the same revision and digest as a replay, and reject the same revision with a different digest as a conflict.
+
+It must treat a matching ETag / 304 observation as cache validation without using the ETag as a cross-channel ordering signal.
+
+The informative revision envelope is not asserted to be current ACP schema.
+
 ## Reproduction
 
 ```bash

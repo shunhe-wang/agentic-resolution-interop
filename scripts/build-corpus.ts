@@ -16,6 +16,10 @@ import {
   type AcpSourceOrder,
   type AcpSourceVerification,
 } from "../src/acp.js";
+import type {
+  AcpGetOrderReconciliationMatrix,
+  AcpOrderSnapshot,
+} from "../src/acp-reconciliation.js";
 import type { AuthorizationTrustKey, GeneralJws } from "../src/authorization.js";
 import { verifyBilateralAuthorization } from "../src/authorization.js";
 import { canonicalJson, sha256Bytes, sha256Canonical } from "../src/canonical.js";
@@ -721,6 +725,142 @@ for (const vector of acpNegativeVectors) {
   writeJson(`acp/negative/${vector.id}.json`, vector.fixture);
 }
 
+const reconciliationOrder7: AcpSourceOrder = {
+  type: "order",
+  id: "order-reconcile-001",
+  checkout_session_id: "checkout-reconcile-001",
+  permalink_url: "https://merchant.example.test/orders/order-reconcile-001",
+  status: "processing",
+  line_items: [{
+    id: "line-reconcile-001",
+    title: "Synthetic running shoes",
+    quantity: { ordered: 1, current: 1, fulfilled: 0 },
+    unit_price: 12900,
+    subtotal: 12900,
+    status: "processing",
+  }],
+  adjustments: [],
+  totals: [{ type: "total", display_text: "Total", amount: 12900 }],
+};
+const reconciliationOrder8 = clone(reconciliationOrder7);
+reconciliationOrder8.status = "shipped";
+reconciliationOrder8.line_items![0]!.quantity.fulfilled = 1;
+reconciliationOrder8.line_items![0]!.status = "fulfilled";
+reconciliationOrder8.fulfillments = [{
+  id: "fulfillment-reconcile-001",
+  type: "shipping",
+  status: "shipped",
+  line_items: [{ id: "line-reconcile-001", quantity: 1 }],
+  events: [{
+    id: "event-reconcile-shipped-001",
+    type: "shipped",
+    occurred_at: "2026-08-24T15:50:00.000Z",
+  }],
+}];
+const reconciliationOrder9 = clone(reconciliationOrder8);
+reconciliationOrder9.status = "completed";
+reconciliationOrder9.fulfillments![0]!.status = "delivered";
+reconciliationOrder9.fulfillments![0]!.events = [
+  ...reconciliationOrder9.fulfillments![0]!.events as unknown[],
+  {
+    id: "event-reconcile-delivered-001",
+    type: "delivered",
+    occurred_at: "2026-08-24T16:10:00.000Z",
+  },
+];
+const reconciliationOrder9Conflict = clone(reconciliationOrder9);
+reconciliationOrder9Conflict.totals = [{ type: "total", display_text: "Total", amount: 13900 }];
+
+const reconciliationSnapshot = (
+  source: "webhook" | "get",
+  revision: number,
+  order: AcpSourceOrder,
+): AcpOrderSnapshot => ({
+  kind: "snapshot",
+  merchantScope: "merchant.example.test",
+  source,
+  revision,
+  etag: `"order-reconcile-001-r${revision}"`,
+  orderSha256: sha256Canonical(order),
+  order,
+});
+
+const getOrderReconciliationMatrix: AcpGetOrderReconciliationMatrix = {
+  schemaVersion: "acp-get-order-reconciliation-matrix-v1",
+  synthetic: true,
+  informative: true,
+  relatedProposal: "agentic-commerce-protocol/agentic-commerce-protocol#234",
+  coverage: "ordering_and_cache_only",
+  orderingPlacement: "not_asserted",
+  revisionSemantics: "merchant_scoped_monotonic_external_envelope",
+  etagSemantics: "cache_validation_not_cross_channel_ordering",
+  observations: {
+    webhook7: reconciliationSnapshot("webhook", 7, reconciliationOrder7),
+    webhook8: reconciliationSnapshot("webhook", 8, reconciliationOrder8),
+    get9: reconciliationSnapshot("get", 9, reconciliationOrder9),
+    get9Conflict: reconciliationSnapshot("get", 9, reconciliationOrder9Conflict),
+    get9NotModified: {
+      kind: "not_modified",
+      merchantScope: "merchant.example.test",
+      source: "get",
+      orderId: "order-reconcile-001",
+      etag: "\"order-reconcile-001-r9\"",
+    },
+  },
+  cases: [
+    {
+      id: "duplicate-webhook-same-revision",
+      description: "Webhook revision 8 followed by the same revision and digest is a replay.",
+      current: "webhook8",
+      incoming: "webhook8",
+      expected: { action: "replay", reason: "same_revision_same_digest" },
+    },
+    {
+      id: "older-webhook-does-not-regress",
+      description: "Webhook revision 7 arriving after revision 8 cannot regress state.",
+      current: "webhook8",
+      incoming: "webhook7",
+      expected: { action: "ignore_stale", reason: "older_revision" },
+    },
+    {
+      id: "get-advances-webhook-state",
+      description: "GET revision 9 advances a consumer whose latest webhook was revision 8.",
+      current: "webhook8",
+      incoming: "get9",
+      expected: { action: "advance", reason: "newer_revision" },
+    },
+    {
+      id: "delayed-webhook-after-get-does-not-regress",
+      description: "Webhook revision 8 arriving after GET revision 9 is stale.",
+      current: "get9",
+      incoming: "webhook8",
+      expected: { action: "ignore_stale", reason: "older_revision" },
+    },
+    {
+      id: "same-revision-different-digest-conflicts",
+      description: "The same order and revision with different bytes is a conflict.",
+      current: "get9",
+      incoming: "get9Conflict",
+      expected: { action: "conflict", reason: "same_revision_different_digest" },
+    },
+    {
+      id: "missed-webhook-recovers-through-get",
+      description: "A consumer at revision 7 recovers directly to revision 9 through GET.",
+      current: "webhook7",
+      incoming: "get9",
+      expected: { action: "advance", reason: "newer_revision" },
+    },
+    {
+      id: "etag-304-does-not-change-state",
+      description: "A matching GET ETag confirms no change without becoming an ordering signal.",
+      current: "get9",
+      incoming: "get9NotModified",
+      expected: { action: "not_modified", reason: "etag_not_modified" },
+    },
+  ],
+};
+writeJson("acp/get-order/reconciliation-matrix.json", getOrderReconciliationMatrix);
+
 const opaqueMandate = "synthetic.ap2.mandate.bytes.must.remain.identical";
 writeJson("lcp/protocols/placement-input.json", {
   ref: { type: "sha256", value: `0x${termsSha256}` },
@@ -772,6 +912,7 @@ writeJson("core/manifest.json", {
       expectedReasonCodes: vector.fixture.expected.reasonCodes,
     })),
   },
+  acpGetOrderReconciliation: "../acp/get-order/reconciliation-matrix.json",
   negatives: negativeIndex,
   identityInvariants: [
     "Verifier-local observation metadata is excluded from stable handoff identity.",
@@ -788,7 +929,8 @@ writeJson("core/manifest.json", {
     integraNegativeVectors,
     validAcpFixture,
     acpNegativeVectors,
+    getOrderReconciliationMatrix,
   }),
 });
 
-console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, ${ucpNegativeVectors.length} UCP negatives, and ${acpNegativeVectors.length + 1} ACP resolution vectors`);
+console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, ${ucpNegativeVectors.length} UCP negatives, ${acpNegativeVectors.length + 1} ACP resolution vectors, and one GET Order reconciliation matrix`);
