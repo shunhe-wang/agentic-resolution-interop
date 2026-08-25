@@ -46,6 +46,13 @@
         ]
       },
       {
+        "id": "contested-amount-mismatch",
+        "path": "../acp/negative/contested-amount-mismatch.json",
+        "expectedReasonCodes": [
+          "acp_contested_amount_mismatch"
+        ]
+      },
+      {
         "id": "dispute-adjustment-without-bilateral-authority",
         "path": "../acp/negative/dispute-adjustment-without-bilateral-authority.json",
         "expectedReasonCodes": [
@@ -154,5 +161,5 @@
     "A supplied verification report is frozen but its producer identity remains an application trust decision.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization."
   ],
-  "contentDigest": "622a1de6156d19d7452032b193b72afd53809fa0aab234e86d03d84f2ed89762"
+  "contentDigest": "fdb971a2ace5344236162b8d5736ab23c4b4b5fa712c1718738391d500de2445"
 }

@@ -61,6 +61,7 @@ export type AcpGetOrderReconciliationMatrix = {
   synthetic: true;
   informative: true;
   relatedProposal: "agentic-commerce-protocol/agentic-commerce-protocol#234";
+  coverage: "ordering_and_cache_only";
   orderingPlacement: "not_asserted";
   revisionSemantics: "merchant_scoped_monotonic_external_envelope";
   etagSemantics: "cache_validation_not_cross_channel_ordering";
@@ -91,6 +92,9 @@ export function reconcileAcpOrderObservation(
     if (invalid) return conflict(invalid, null);
     return { action: "initialize", reason: "first_snapshot", state: incoming };
   }
+
+  const invalidCurrent = validSnapshot(current);
+  if (invalidCurrent) return conflict(invalidCurrent, null);
 
   const incomingOrderId = incoming.kind === "snapshot" ? incoming.order.id : incoming.orderId;
   if (

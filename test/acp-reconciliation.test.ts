@@ -17,6 +17,7 @@ const readMatrix = (): AcpGetOrderReconciliationMatrix =>
 
 test("ACP GET Order matrix reconciles webhook and pull snapshots without regression", () => {
   const matrix = readMatrix();
+  assert.equal(matrix.coverage, "ordering_and_cache_only");
   assert.equal(matrix.orderingPlacement, "not_asserted");
   assert.equal(matrix.etagSemantics, "cache_validation_not_cross_channel_ordering");
   assert.equal(matrix.cases.length, 7);
@@ -53,4 +54,18 @@ test("ACP GET Order reconciliation rejects a snapshot whose declared digest chan
     { action: "conflict", reason: "snapshot_digest_mismatch" },
   );
   assert.equal(result.state?.revision, 8);
+});
+
+test("ACP GET Order reconciliation drops persisted state whose declared digest is corrupt", () => {
+  const matrix = readMatrix();
+  const current = structuredClone(matrix.observations.get9) as AcpOrderSnapshot;
+  const incoming = structuredClone(matrix.observations.webhook8) as AcpOrderSnapshot;
+  current.order.totals = [{ type: "total", display_text: "Total", amount: 1 }];
+
+  const result = reconcileAcpOrderObservation(current, incoming);
+  assert.deepEqual(
+    { action: result.action, reason: result.reason },
+    { action: "conflict", reason: "snapshot_digest_mismatch" },
+  );
+  assert.equal(result.state, null);
 });

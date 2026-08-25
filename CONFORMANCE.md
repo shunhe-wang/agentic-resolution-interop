@@ -76,9 +76,13 @@ The runner must reject a handoff that lacks separate bilateral authority with `a
 
 It must reject reuse of the operative disposition artifact as execution evidence with `acp_execution_not_separate`.
 
-The pinned source schema check covers only the ACP `Order` fields exercised by this vector.
+The source check is a manual subset over the ACP `Order` fields exercised by this vector. It records a pinned schema URL for review context but does not claim or perform full JSON Schema validation.
+
+The vector binds the dispute adjustment amount and currency to the requested, authorized, and executed remedy. The pinned ACP Order has no separate native payment-transaction identifier, so native transaction binding is explicitly unavailable. A later ACP-facing order update recording execution is deferred and not asserted by this vector.
 
 ## ACP GET Order reconciliation behavior
+
+This matrix covers snapshot ordering and ETag cache behavior only. It does not exercise ACP #234 HTTP authorization, indistinguishable unknown/unauthorized `404` responses, or unsupported-endpoint behavior.
 
 A conforming runner must advance to a newer merchant-scoped revision regardless of whether it arrives by webhook or GET.
 

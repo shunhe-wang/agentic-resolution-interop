@@ -600,7 +600,7 @@ const acpVerification: AcpSourceVerification = {
   orderSha256: sha256Canonical(acpOrder),
   rawBodySha256: sha256Bytes(acpWebhookRawBody),
   merchantSignatureSha256: sha256Bytes(acpWebhook.merchantSignature),
-  validationScope: "pinned-order-fields-exercised-by-this-vector",
+  validationScope: "manual-order-field-subset-exercised-by-this-vector",
   verificationStatus: "passed",
   authenticity: "synthetic_test_key_only",
 };
@@ -621,6 +621,9 @@ const validAcpFixture: AcpExternalResolutionFixture = {
     contestedAdjustmentId: "adjustment-dispute-001",
     lifecycleArtifactRef: "#/lifecycle",
     extensionPlacement: "not_asserted",
+    nativeTransactionBinding: "not_available_in_pinned_order",
+    acpFacingExecutionState: "deferred_not_asserted",
+    contestedAmountBinding: "adjustment_amount_and_currency",
   },
   lifecycle: acpLifecycle,
   expected: { valid: true, reasonCodes: [] },
@@ -662,6 +665,19 @@ const acpNegativeVectors: Array<{
       value.expected = {
         valid: false,
         reasonCodes: ["acp_webhook_signature_invalid"],
+      };
+      return value;
+    })(),
+  },
+  {
+    id: "contested-amount-mismatch",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      value.lifecycle.handoff.requestedRemedy.amountMinorUnits = "2400";
+      resealAcpMutation(value);
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_contested_amount_mismatch"],
       };
       return value;
     })(),
@@ -774,6 +790,7 @@ const getOrderReconciliationMatrix: AcpGetOrderReconciliationMatrix = {
   synthetic: true,
   informative: true,
   relatedProposal: "agentic-commerce-protocol/agentic-commerce-protocol#234",
+  coverage: "ordering_and_cache_only",
   orderingPlacement: "not_asserted",
   revisionSemantics: "merchant_scoped_monotonic_external_envelope",
   etagSemantics: "cache_validation_not_cross_channel_ordering",

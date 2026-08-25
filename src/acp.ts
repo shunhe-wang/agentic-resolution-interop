@@ -73,7 +73,7 @@ export type AcpSourceVerification = {
   orderSha256: string;
   rawBodySha256: string;
   merchantSignatureSha256: string;
-  validationScope: "pinned-order-fields-exercised-by-this-vector";
+  validationScope: "manual-order-field-subset-exercised-by-this-vector";
   verificationStatus: "passed";
   authenticity: "synthetic_test_key_only";
 };
@@ -94,6 +94,9 @@ export type AcpExternalResolutionFixture = {
     contestedAdjustmentId: string;
     lifecycleArtifactRef: "#/lifecycle";
     extensionPlacement: "not_asserted";
+    nativeTransactionBinding: "not_available_in_pinned_order";
+    acpFacingExecutionState: "deferred_not_asserted";
+    contestedAmountBinding: "adjustment_amount_and_currency";
   };
   lifecycle: ResolutionLifecycle;
   expected: {
@@ -108,6 +111,7 @@ export type AcpExternalResolutionReasonCode =
   | "acp_webhook_signature_invalid"
   | "acp_webhook_timestamp_invalid"
   | "acp_contested_adjustment_missing"
+  | "acp_contested_amount_mismatch"
   | "acp_order_binding_mismatch"
   | "acp_external_resolver_missing"
   | "acp_resolution_authority_missing"
@@ -115,8 +119,15 @@ export type AcpExternalResolutionReasonCode =
   | "acp_lifecycle_order_invalid"
   | "acp_lifecycle_invalid";
 
-const sameStrings = (left: readonly string[], right: readonly string[]): boolean =>
-  [...left].sort().join("\n") === [...right].sort().join("\n");
+export const sameAcpIdentifierMultiset = (
+  left: readonly string[],
+  right: readonly string[],
+): boolean => {
+  if (left.length !== right.length) return false;
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((value, index) => value === sortedRight[index]);
+};
 
 const validDate = (value: string): number | null => {
   const parsed = Date.parse(value);
@@ -192,7 +203,7 @@ export function sealAcpExternalResolutionLifecycle(
     artifactId: "acp-record-verification.json",
     sha256: sha256Canonical(verification),
     mediaType: "application/json",
-    source: "synthetic-pinned-acp-order-check",
+    source: "synthetic-manual-acp-order-field-check",
   };
   lifecycle.handoff.frozenRecord.manifest.includedArtifacts = [
     orderArtifact,
@@ -204,7 +215,7 @@ export function sealAcpExternalResolutionLifecycle(
   lifecycle.handoff.nativeProof = {
     artifactRef: "#/source/verification",
     sha256: verificationArtifact.sha256,
-    verificationMethod: "synthetic-pinned-acp-order-structure-and-binding-check",
+    verificationMethod: "synthetic-manual-acp-order-field-and-binding-check",
   };
   lifecycle.handoff.frozenRecord.digest = frozenRecordDigest(lifecycle.handoff.frozenRecord.manifest);
   const stableHandoffDigest = handoffDigest(lifecycle.handoff);
@@ -251,7 +262,7 @@ export function validateAcpExternalResolutionFixture(
     verification.orderSchema !== ACP_ORDER_SCHEMA_URL ||
     verification.canonicalization !== "RFC8785" ||
     verification.digestAlgorithm !== "SHA-256" ||
-    verification.validationScope !== "pinned-order-fields-exercised-by-this-vector" ||
+    verification.validationScope !== "manual-order-field-subset-exercised-by-this-vector" ||
     verification.verificationStatus !== "passed" ||
     verification.authenticity !== "synthetic_test_key_only" ||
     verification.orderSha256 !== sha256Canonical(order)
@@ -289,8 +300,39 @@ export function validateAcpExternalResolutionFixture(
     !adjustment.line_items?.length
   ) reasons.add("acp_contested_adjustment_missing");
 
-  const disputedLineIds = adjustment?.line_items?.map((item) => item.id) ?? [];
   const handoff = fixture.lifecycle.handoff;
+  const lifecycleResult = validateLifecycle(fixture.lifecycle, options);
+  const operative = lifecycleResult.operativeDisposition;
+  const adjustmentAmount = adjustment?.amount;
+  const adjustmentCurrency = adjustment?.currency?.toUpperCase();
+  const downstreamMoney = [
+    ...(operative ? [operative.authorizedRemedy] : []),
+    ...fixture.lifecycle.executions,
+  ];
+  const validDownstreamMoney =
+    typeof adjustmentAmount === "number" &&
+    Number.isSafeInteger(adjustmentAmount) &&
+    adjustmentAmount >= 0 &&
+    downstreamMoney.every(
+      (money) =>
+        /^(0|[1-9][0-9]*)$/.test(money.amountMinorUnits) &&
+        BigInt(money.amountMinorUnits) <= BigInt(adjustmentAmount) &&
+        money.currency.toUpperCase() === adjustmentCurrency,
+    );
+  if (
+    fixture.mapping.nativeTransactionBinding !== "not_available_in_pinned_order" ||
+    fixture.mapping.acpFacingExecutionState !== "deferred_not_asserted" ||
+    fixture.mapping.contestedAmountBinding !== "adjustment_amount_and_currency" ||
+    typeof adjustmentAmount !== "number" ||
+    !Number.isSafeInteger(adjustmentAmount) ||
+    adjustmentAmount < 0 ||
+    !adjustmentCurrency ||
+    handoff.requestedRemedy.amountMinorUnits !== String(adjustmentAmount) ||
+    handoff.requestedRemedy.currency.toUpperCase() !== adjustmentCurrency ||
+    !validDownstreamMoney
+  ) reasons.add("acp_contested_amount_mismatch");
+
+  const disputedLineIds = adjustment?.line_items?.map((item) => item.id) ?? [];
   const orderArtifact = handoff.frozenRecord.manifest.includedArtifacts.find(
     (artifact) => artifact.artifactId === "acp-order.json",
   );
@@ -301,7 +343,7 @@ export function validateAcpExternalResolutionFixture(
     handoff.nativeProtocol !== "agentic_checkout_acp" ||
     handoff.transaction.orderId !== order.id ||
     handoff.transaction.checkoutId !== order.checkout_session_id ||
-    !sameStrings(handoff.transaction.disputedLineItemIds, disputedLineIds) ||
+    !sameAcpIdentifierMultiset(handoff.transaction.disputedLineItemIds, disputedLineIds) ||
     orderArtifact?.sha256 !== sha256Canonical(order) ||
     verificationArtifact?.sha256 !== sha256Canonical(verification) ||
     handoff.nativeProof.artifactRef !== "#/source/verification" ||
@@ -315,7 +357,6 @@ export function validateAcpExternalResolutionFixture(
     )
   ) reasons.add("acp_external_resolver_missing");
 
-  const lifecycleResult = validateLifecycle(fixture.lifecycle, options);
   if (lifecycleResult.reasonCodes.includes("party_authority_missing")) {
     reasons.add("acp_resolution_authority_missing");
   }

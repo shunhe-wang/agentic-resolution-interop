@@ -124,7 +124,7 @@
       "requestedRemedy": {
         "action": "refund",
         "currency": "USD",
-        "amountMinorUnits": "2500"
+        "amountMinorUnits": "2400"
       },
       "authority": {
         "bilateral": true,
@@ -245,8 +245,8 @@
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-001",
-        "dispositionDigest": "c00f0c7a5f6dcda97473f27caa7c196f2a728d567044a8f18544ff4ac1cc0ece",
-        "handoffDigest": "bce0ed26840d81eef18c0b3eb955f0deed12c6044683e971c6a79decdc6fb4f3",
+        "dispositionDigest": "c7f67c85ba73a977da13f84468e960a11c195b4630e0ccf575498bddf8a08b6f",
+        "handoffDigest": "0e43a3330afc3e72e15bcc7b39e372495a38a2f7d8462d5db6ef969c5d3b0dc5",
         "transactionId": "tx-neutral-001",
         "frozenRecordDigest": "5d3dbd30748cc3fa791f0cb3635c4e552280a95e42b187d834823e906cde5116",
         "outcome": "claim_granted",
@@ -266,8 +266,8 @@
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "adff5a3a762bb784ac3d35fb965761312630abab7dd900bda35e80e2bbb6e2bb",
-        "handoffDigest": "bce0ed26840d81eef18c0b3eb955f0deed12c6044683e971c6a79decdc6fb4f3",
+        "dispositionDigest": "91c2b2927d548f8a5b46dc6761077233a2ac188201ef29c03a48938c347f1fb1",
+        "handoffDigest": "0e43a3330afc3e72e15bcc7b39e372495a38a2f7d8462d5db6ef969c5d3b0dc5",
         "transactionId": "tx-neutral-001",
         "frozenRecordDigest": "5d3dbd30748cc3fa791f0cb3635c4e552280a95e42b187d834823e906cde5116",
         "outcome": "claim_partially_granted",
@@ -292,7 +292,7 @@
         "schemaVersion": "resolution-execution-receipt-v1",
         "executionId": "execution-neutral-001",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "adff5a3a762bb784ac3d35fb965761312630abab7dd900bda35e80e2bbb6e2bb",
+        "dispositionDigest": "91c2b2927d548f8a5b46dc6761077233a2ac188201ef29c03a48938c347f1fb1",
         "action": "refund",
         "currency": "USD",
         "amountMinorUnits": "2000",
@@ -320,7 +320,9 @@
     }
   },
   "expected": {
-    "valid": true,
-    "reasonCodes": []
+    "valid": false,
+    "reasonCodes": [
+      "acp_contested_amount_mismatch"
+    ]
   }
 }

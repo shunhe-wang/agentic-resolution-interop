@@ -6,33 +6,38 @@
   "files": [
     {
       "path": "acp/get-order/reconciliation-matrix.json",
-      "sha256": "1d3f5ff53e4a13643e4249928524c3fb1e8a624320414cbc3b1da43617a170f6",
-      "bytes": 9119
+      "sha256": "ab3b1b788fc9b19105e5e513577680c29576505e2ed06db1f96e00896ae1bc82",
+      "bytes": 9160
+    },
+    {
+      "path": "acp/negative/contested-amount-mismatch.json",
+      "sha256": "c522fbfe503e5c58a8a86d091d6e4462fad65b3fc834eadd7490a0834587af72",
+      "bytes": 13855
     },
     {
       "path": "acp/negative/disposition-as-execution.json",
-      "sha256": "be4b3d7d1558527942113a59f8965b56f1f466cff1cf68ea0851e8ec555574c0",
-      "bytes": 13682
+      "sha256": "4aff87bbd052ff25c6f8708d24e5f3f94048a13b352108444ee2a2c5072a3a17",
+      "bytes": 13875
     },
     {
       "path": "acp/negative/dispute-adjustment-without-bilateral-authority.json",
-      "sha256": "095e09d25d496f3fc6d7f8625387c7fffc69ce7ed7a61e1c778330ce6ec249d4",
-      "bytes": 13674
+      "sha256": "5fec40ad7096e4ae49ea85d424266cfe14658fbc32b620aa047f4b54c1434128",
+      "bytes": 13867
     },
     {
       "path": "acp/negative/webhook-signature-mismatch.json",
-      "sha256": "459fff7d867f2cbce0de63b0f77971a2d6663ec440de9d5b051908c2c77a5ee4",
-      "bytes": 13662
+      "sha256": "ef2c88984bfa903ef99491c9790e315083e9c00b3645e1c29f5283c493a4ee49",
+      "bytes": 13855
     },
     {
       "path": "acp/valid/contested-external-resolution.json",
-      "sha256": "6997003d405b7a8c9ce3d5e60be691ca05d602c79b99741c59744ea274915b83",
-      "bytes": 13618
+      "sha256": "b599c1af350961ae4aa462f66fc2e63aeb75c8b5dc37d90d742c8445bc01cef2",
+      "bytes": 13811
     },
     {
       "path": "core/manifest.json",
-      "sha256": "d959a78f4a2168b7b9f08117fa01b38d08925be32924c5c4f3a803527841c730",
-      "bytes": 5389
+      "sha256": "45cad57e79342c265c863e694b37ebcdcf9d2ef5d71b59c525e6cf066f2c2c3d",
+      "bytes": 5600
     },
     {
       "path": "core/negative/changed-frozen-record.json",
