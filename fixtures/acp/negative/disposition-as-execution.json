@@ -25,7 +25,7 @@
       "orderSha256": "90c066f980d26b1caf3f25a4827d95dc43dea4f92c6fd44bd908d50681d405d0",
       "rawBodySha256": "a1c1454ad136f159a6bd7327b287143abbf1e936c4c148f81739b97da31757ef",
       "merchantSignatureSha256": "85841c4a124e29ed9a7b3fbb73219c637078bd342545c1f68b9752d75c91e179",
-      "validationScope": "pinned-order-fields-exercised-by-this-vector",
+      "validationScope": "manual-order-field-subset-exercised-by-this-vector",
       "verificationStatus": "passed",
       "authenticity": "synthetic_test_key_only"
     },
@@ -84,7 +84,10 @@
   "mapping": {
     "contestedAdjustmentId": "adjustment-dispute-001",
     "lifecycleArtifactRef": "#/lifecycle",
-    "extensionPlacement": "not_asserted"
+    "extensionPlacement": "not_asserted",
+    "nativeTransactionBinding": "not_available_in_pinned_order",
+    "acpFacingExecutionState": "deferred_not_asserted",
+    "contestedAmountBinding": "adjustment_amount_and_currency"
   },
   "lifecycle": {
     "handoff": {
@@ -162,9 +165,9 @@
             },
             {
               "artifactId": "acp-record-verification.json",
-              "sha256": "149cf5999d5aa94bc675bba0c43293016388e58ef1e554ad2312b31816c93b6c",
+              "sha256": "2aa0efeafea79056061ec958e877e3bed5f67e792728d901b11fb93b02b3adaa",
               "mediaType": "application/json",
-              "source": "synthetic-pinned-acp-order-check"
+              "source": "synthetic-manual-acp-order-field-check"
             },
             {
               "artifactId": "claim.json",
@@ -216,7 +219,7 @@
             }
           ]
         },
-        "digest": "63d0607e4083e6e4bee4fea3d7ebf31fe9a2e940092afd53b6a7fcb85ab5451e"
+        "digest": "5d3dbd30748cc3fa791f0cb3635c4e552280a95e42b187d834823e906cde5116"
       },
       "remedyCeilings": [
         {
@@ -234,18 +237,18 @@
       "expiresAt": "2027-08-24T16:00:00.000Z",
       "nativeProof": {
         "artifactRef": "#/source/verification",
-        "sha256": "149cf5999d5aa94bc675bba0c43293016388e58ef1e554ad2312b31816c93b6c",
-        "verificationMethod": "synthetic-pinned-acp-order-structure-and-binding-check"
+        "sha256": "2aa0efeafea79056061ec958e877e3bed5f67e792728d901b11fb93b02b3adaa",
+        "verificationMethod": "synthetic-manual-acp-order-field-and-binding-check"
       }
     },
     "dispositions": [
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-001",
-        "dispositionDigest": "984c43fec84b2d614fed888fa07b986fa8edc63747a5f3f4e906ebd086d09628",
-        "handoffDigest": "269a5463d40ee772ffab0b88f31e86730c59394c51a75d49c9e41e3ae5ba2975",
+        "dispositionDigest": "c00f0c7a5f6dcda97473f27caa7c196f2a728d567044a8f18544ff4ac1cc0ece",
+        "handoffDigest": "bce0ed26840d81eef18c0b3eb955f0deed12c6044683e971c6a79decdc6fb4f3",
         "transactionId": "tx-neutral-001",
-        "frozenRecordDigest": "63d0607e4083e6e4bee4fea3d7ebf31fe9a2e940092afd53b6a7fcb85ab5451e",
+        "frozenRecordDigest": "5d3dbd30748cc3fa791f0cb3635c4e552280a95e42b187d834823e906cde5116",
         "outcome": "claim_granted",
         "authorizedRemedy": {
           "action": "refund",
@@ -263,10 +266,10 @@
       {
         "schemaVersion": "resolution-disposition-v1",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "9ff2f8c448ad999b5e5bdbebd69b72eb0f77ee488ec4515f7aebbf48f7d459c3",
-        "handoffDigest": "269a5463d40ee772ffab0b88f31e86730c59394c51a75d49c9e41e3ae5ba2975",
+        "dispositionDigest": "adff5a3a762bb784ac3d35fb965761312630abab7dd900bda35e80e2bbb6e2bb",
+        "handoffDigest": "bce0ed26840d81eef18c0b3eb955f0deed12c6044683e971c6a79decdc6fb4f3",
         "transactionId": "tx-neutral-001",
-        "frozenRecordDigest": "63d0607e4083e6e4bee4fea3d7ebf31fe9a2e940092afd53b6a7fcb85ab5451e",
+        "frozenRecordDigest": "5d3dbd30748cc3fa791f0cb3635c4e552280a95e42b187d834823e906cde5116",
         "outcome": "claim_partially_granted",
         "authorizedRemedy": {
           "action": "refund",
@@ -289,7 +292,7 @@
         "schemaVersion": "resolution-execution-receipt-v1",
         "executionId": "execution-neutral-001",
         "dispositionId": "disposition-neutral-002",
-        "dispositionDigest": "9ff2f8c448ad999b5e5bdbebd69b72eb0f77ee488ec4515f7aebbf48f7d459c3",
+        "dispositionDigest": "adff5a3a762bb784ac3d35fb965761312630abab7dd900bda35e80e2bbb6e2bb",
         "action": "refund",
         "currency": "USD",
         "amountMinorUnits": "2000",

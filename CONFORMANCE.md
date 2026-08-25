@@ -76,7 +76,9 @@ The runner must reject a handoff that lacks separate bilateral authority with `a
 
 It must reject reuse of the operative disposition artifact as execution evidence with `acp_execution_not_separate`.
 
-The pinned source schema check covers only the ACP `Order` fields exercised by this vector.
+The source check is a manual subset over the ACP `Order` fields exercised by this vector. It records a pinned schema URL for review context but does not claim or perform full JSON Schema validation.
+
+The vector binds the dispute adjustment amount and currency to the requested, authorized, and executed remedy. The pinned ACP Order has no separate native payment-transaction identifier, so native transaction binding is explicitly unavailable. A later ACP-facing order update recording execution is deferred and not asserted by this vector.
 
 ## Reproduction
 

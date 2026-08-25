@@ -9,6 +9,7 @@ import {
   ACP_UPSTREAM_REVISION,
   ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS,
   signAcpWebhook,
+  sameAcpIdentifierMultiset,
   validateAcpExternalResolutionFixture,
   verifyAcpWebhook,
   type AcpExternalResolutionFixture,
@@ -44,6 +45,9 @@ test("ACP vector carries a pending dispute through external disposition and sepa
     sha256Bytes(fixture.source.webhook.merchantSignature),
   );
   assert.equal(fixture.mapping.extensionPlacement, "not_asserted");
+  assert.equal(fixture.mapping.nativeTransactionBinding, "not_available_in_pinned_order");
+  assert.equal(fixture.mapping.acpFacingExecutionState, "deferred_not_asserted");
+  assert.equal(fixture.mapping.contestedAmountBinding, "adjustment_amount_and_currency");
   assert.equal("external_resolution" in fixture.source.order, false);
   assert.equal("capabilities" in fixture.source.order, false);
   assert.equal(adjustment?.type, "dispute");
@@ -61,6 +65,24 @@ test("ACP vector carries a pending dispute through external disposition and sepa
     webhookSharedKey: ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
   }), []);
   assert.deepEqual(fixture.expected, { valid: true, reasonCodes: [] });
+});
+
+test("ACP identifier comparison cannot collide through embedded delimiters", () => {
+  assert.equal(sameAcpIdentifierMultiset(["a\nb"], ["a", "b"]), false);
+  assert.equal(sameAcpIdentifierMultiset(["b", "a"], ["a", "b"]), true);
+});
+
+test("ACP contested amount and currency bind through requested, authorized, and executed remedy", () => {
+  const fixture = read<AcpExternalResolutionFixture>(
+    "acp/negative/contested-amount-mismatch.json",
+  );
+  assert.deepEqual(
+    validateAcpExternalResolutionFixture(fixture, {
+      now: VALIDATION_TIME,
+      webhookSharedKey: ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
+    }),
+    ["acp_contested_amount_mismatch"],
+  );
 });
 
 test("ACP dispute adjustment alone does not establish bilateral resolution authority", () => {

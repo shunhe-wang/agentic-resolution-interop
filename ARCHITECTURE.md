@@ -77,7 +77,9 @@ The pending adjustment is evidence that the transaction is contested, not eviden
 
 The committed negatives enforce the two boundaries most likely to collapse in an implementation: treating the adjustment as consent and treating the signed disposition as a refund receipt.
 
-The pinned source schema check remains structural, while the native webhook check proves only the HMAC and replay-window mechanics under public synthetic test material.
+The source check is an intentionally manual field subset, not full validation against the pinned JSON Schema. The native webhook check proves only the HMAC and replay-window mechanics under public synthetic test material.
+
+The dispute adjustment amount and currency are bound across the requested, authorized, and executed remedy. The pinned ACP Order exposes no separate native payment-transaction identifier, and this vector does not yet model a later ACP-facing order update after execution; both limits are explicit in the informative mapping.
 
 ## AP2 and x402 placement checks
 
