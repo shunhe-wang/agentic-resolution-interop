@@ -16,6 +16,16 @@ The authorization verifier requires distinct claimant and respondent EdDSA signa
 
 Applications still own signer authorization, revocation, key rotation, principal identity, native protocol verification, and legal validity.
 
+## ACP synthetic webhook boundary
+
+The ACP profile mechanically verifies the native `Merchant-Signature` construction over the exact raw webhook body and enforces the specified replay window.
+
+Its deterministic HMAC key is public test material, not a secret or merchant credential.
+
+The result proves algorithm and byte-binding behavior only.
+
+It does not authenticate a real merchant or establish a production trust relationship.
+
 ## Supplied Integra report boundary
 
 The Integra adapter validates the contents and canonical bytes of a supplied mechanical verification report, but a report is not signed by this adapter and its producer identity is not authenticated here.

@@ -2,7 +2,7 @@
 
 This repository is a provider-neutral, executable conformance corpus for the seam between agentic commerce and external dispute resolution.
 
-It gives UCP, LCP, AP2, x402, checkout, escrow, merchant-refund, and resolver implementers the same synthetic lifecycle to pressure-test.
+It gives ACP, UCP, LCP, AP2, x402, checkout, escrow, merchant-refund, and resolver implementers the same synthetic lifecycle to pressure-test.
 
 The lifecycle keeps five things distinct: a verified commerce record, bilateral resolution authority, a frozen dispute record, a disposition or Award reference, and a separate execution receipt.
 
@@ -19,7 +19,7 @@ npm run check
 
 The check builds the TypeScript, runs the lifecycle, adapter, and security vectors, verifies official Integra LCP placement behavior for UCP, AP2, and x402, checks the corpus seal, and audits the public export boundary.
 
-Expected result: 24 tests pass, 16 negative lifecycle vectors, eight Integra adapter negatives, and three UCP path negatives produce their declared reason codes, both UCP pressure-test paths remain distinct, and 48 fixture files match the committed seal.
+Expected result: 32 tests pass, 16 core negative lifecycle vectors, eight Integra adapter negatives, three UCP path negatives, and four ACP negatives produce their declared reason codes, both UCP pressure-test paths remain distinct, and 53 fixture files match the committed seal.
 
 ## Start with these public fixtures
 
@@ -27,6 +27,7 @@ Expected result: 24 tests pass, 16 negative lifecycle vectors, eight Integra ada
 - [Runner-neutral corpus manifest](fixtures/core/manifest.json)
 - [Escrow-held UCP path](fixtures/ucp/paths/escrow-held.json)
 - [Post-settlement merchant-refund UCP path](fixtures/ucp/paths/post-settlement-merchant-refund.json)
+- [Contested ACP order to external resolution](fixtures/acp/valid/contested-external-resolution.json)
 - [Verified LCP legal-context binding](fixtures/lcp/valid/verified-binding.json)
 - [Integra-to-resolution adapter input](fixtures/lcp/integra/valid/adapter-input.json)
 - [Frozen resolution handoff produced by the adapter](fixtures/lcp/integra/valid/resolution-handoff.json)
@@ -65,6 +66,14 @@ Only public verification keys are committed.
 ## Protocol profiles
 
 The core lifecycle is protocol-neutral.
+
+The informative ACP test vector pins a source `Order` with a pending `dispute` adjustment, then maps the same order, checkout, and line item into a bilateral handoff, disposition, and separate execution receipt.
+
+It does not add fields to the source ACP `Order` or assert where an ACP extension belongs.
+
+The profile verifies ACP's exact webhook HMAC construction and replay window using public deterministic test material.
+
+That proves native verification mechanics, not real merchant identity or production trust.
 
 The UCP projection is the first operational profile because it exposes both execution postures requested for pressure testing.
 

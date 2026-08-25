@@ -5,9 +5,34 @@
   "synthetic": true,
   "files": [
     {
+      "path": "acp/negative/contested-amount-mismatch.json",
+      "sha256": "c522fbfe503e5c58a8a86d091d6e4462fad65b3fc834eadd7490a0834587af72",
+      "bytes": 13855
+    },
+    {
+      "path": "acp/negative/disposition-as-execution.json",
+      "sha256": "4aff87bbd052ff25c6f8708d24e5f3f94048a13b352108444ee2a2c5072a3a17",
+      "bytes": 13875
+    },
+    {
+      "path": "acp/negative/dispute-adjustment-without-bilateral-authority.json",
+      "sha256": "5fec40ad7096e4ae49ea85d424266cfe14658fbc32b620aa047f4b54c1434128",
+      "bytes": 13867
+    },
+    {
+      "path": "acp/negative/webhook-signature-mismatch.json",
+      "sha256": "ef2c88984bfa903ef99491c9790e315083e9c00b3645e1c29f5283c493a4ee49",
+      "bytes": 13855
+    },
+    {
+      "path": "acp/valid/contested-external-resolution.json",
+      "sha256": "b599c1af350961ae4aa462f66fc2e63aeb75c8b5dc37d90d742c8445bc01cef2",
+      "bytes": 13811
+    },
+    {
       "path": "core/manifest.json",
-      "sha256": "c0314d91e4e71597ac63a738e315fb7d14c681418ca3486f216baeed76e6ccc6",
-      "bytes": 4451
+      "sha256": "6cdf69fd6c750ddccbbc2d6ac3edd383d68acc31abdd49c01a9722f83e47c9b0",
+      "bytes": 5522
     },
     {
       "path": "core/negative/changed-frozen-record.json",

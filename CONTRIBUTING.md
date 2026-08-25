@@ -14,6 +14,8 @@ Please identify the exact field, digest, role, amount, authority, supersession e
 
 UCP escrow-held and post-settlement merchant-refund reports are especially useful for the initial profile.
 
+ACP reports should identify whether a pending `dispute` adjustment can be carried into a bilateral external handoff without inventing extension placement or conflating disposition with execution.
+
 LCP legal-context, AP2 placement, and x402 conflict cases are also in scope.
 
 ## Pull requests

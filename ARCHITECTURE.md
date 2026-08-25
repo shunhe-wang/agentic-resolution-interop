@@ -61,6 +61,26 @@ Both receipts must identify the exact operative disposition and remain distinct 
 
 Each path freezes the funds state observed at handoff into its own manifest. The escrow path binds hold evidence to the escrow custodian and controller. The post-settlement path binds prior merchant settlement, then links a later refund request and merchant approval to a separate same-rail receipt. These are corpus-level neutral shapes; native implementations must supply their own field mapping.
 
+## ACP test vector
+
+The ACP profile starts with a pinned, synthetic `Order` whose native `dispute` adjustment is `pending`.
+
+The source order remains unmodified inside an informative corpus wrapper because this repository does not assert the location of an ACP external-resolution extension.
+
+The adapter binds the ACP order, checkout session, and disputed line item to the protocol-neutral handoff.
+
+Before projection, it verifies the exact synthetic webhook bytes using ACP's `Merchant-Signature` HMAC-SHA256 construction and 300-second replay window.
+
+The deterministic public key material proves verifier mechanics only; production merchant authentication remains an application trust decision.
+
+The pending adjustment is evidence that the transaction is contested, not evidence of bilateral authority, resolver appointment, disposition, or execution.
+
+The committed negatives enforce the two boundaries most likely to collapse in an implementation: treating the adjustment as consent and treating the signed disposition as a refund receipt.
+
+The source check is an intentionally manual field subset, not full validation against the pinned JSON Schema. The native webhook check proves only the HMAC and replay-window mechanics under public synthetic test material.
+
+The dispute adjustment amount and currency are bound across the requested, authorized, and executed remedy. The pinned ACP Order exposes no separate native payment-transaction identifier, and this vector does not yet model a later ACP-facing order update after execution; both limits are explicit in the informative mapping.
+
 ## AP2 and x402 placement checks
 
 The official Integra AP2 check adds `metadata.legalContext` without changing the opaque mandate bytes.

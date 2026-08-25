@@ -1,4 +1,5 @@
 export * from "./authorization.js";
+export * from "./acp.js";
 export * from "./canonical.js";
 export * from "./integra-adapter.js";
 export * from "./lcp.js";

@@ -3,6 +3,19 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildBundle, type Artifact } from "@integraledger/lcp-evidence";
 import { serializeReport, type VerificationReport } from "@integraledger/lcp-verify";
+import {
+  ACP_ORDER_SCHEMA_URL,
+  ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
+  ACP_UPSTREAM_REVISION,
+  ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS,
+  ACP_WEBHOOK_SPEC_URL,
+  sealAcpExternalResolutionLifecycle,
+  signAcpWebhook,
+  validateAcpExternalResolutionFixture,
+  type AcpExternalResolutionFixture,
+  type AcpSourceOrder,
+  type AcpSourceVerification,
+} from "../src/acp.js";
 import type { AuthorizationTrustKey, GeneralJws } from "../src/authorization.js";
 import { verifyBilateralAuthorization } from "../src/authorization.js";
 import { canonicalJson, sha256Bytes, sha256Canonical } from "../src/canonical.js";
@@ -528,6 +541,186 @@ for (const vector of ucpNegativeVectors) {
   writeJson(`ucp/negative/${vector.id}.json`, vector);
 }
 
+const acpOrder: AcpSourceOrder = {
+  type: "order",
+  id: "order-neutral-001",
+  checkout_session_id: "checkout-neutral-001",
+  permalink_url: "https://merchant.example.test/orders/order-neutral-001",
+  status: "processing",
+  line_items: [{
+    id: "line-002",
+    title: "Undelivered synthetic item",
+    quantity: { ordered: 1, current: 1, fulfilled: 0 },
+    unit_price: 2500,
+    subtotal: 2500,
+    status: "processing",
+  }],
+  adjustments: [{
+    id: "adjustment-dispute-001",
+    type: "dispute",
+    occurred_at: "2026-08-24T15:55:00.000Z",
+    status: "pending",
+    line_items: [{ id: "line-002", quantity: 1 }],
+    amount: 2500,
+    currency: "usd",
+    description: "Buyer contests non-delivery of one synthetic item.",
+    reason: "non_delivery",
+  }],
+  totals: [
+    { type: "total", display_text: "Total", amount: 2500 },
+    { type: "amount_refunded", display_text: "Refunded", amount: 0 },
+  ],
+};
+const acpWebhookTimestamp = Math.floor(new Date(FIXED_VERIFICATION_TIME).getTime() / 1000);
+const acpWebhookRawBody = JSON.stringify({ type: "order_update", data: acpOrder });
+const acpWebhook = {
+  endpoint: "/agentic_checkout/webhooks/order_events" as const,
+  contentType: "application/json" as const,
+  rawBody: acpWebhookRawBody,
+  merchantSignature: signAcpWebhook(
+    acpWebhookRawBody,
+    acpWebhookTimestamp,
+    ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
+  ),
+};
+const acpVerification: AcpSourceVerification = {
+  schemaVersion: "synthetic-acp-webhook-verification-v1",
+  upstreamRevision: ACP_UPSTREAM_REVISION,
+  orderSchema: ACP_ORDER_SCHEMA_URL,
+  webhookSpec: ACP_WEBHOOK_SPEC_URL,
+  signatureAlgorithm: "HMAC-SHA256",
+  signedPayload: "timestamp.raw_body",
+  signatureToleranceSeconds: ACP_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS,
+  canonicalization: "RFC8785",
+  digestAlgorithm: "SHA-256",
+  orderSha256: sha256Canonical(acpOrder),
+  rawBodySha256: sha256Bytes(acpWebhookRawBody),
+  merchantSignatureSha256: sha256Bytes(acpWebhook.merchantSignature),
+  validationScope: "manual-order-field-subset-exercised-by-this-vector",
+  verificationStatus: "passed",
+  authenticity: "synthetic_test_key_only",
+};
+const acpLifecycle = sealAcpExternalResolutionLifecycle(lifecycle, acpOrder, acpVerification);
+const validAcpFixture: AcpExternalResolutionFixture = {
+  schemaVersion: "acp-external-resolution-test-vector-v1",
+  synthetic: true,
+  informative: true,
+  source: {
+    protocol: "agentic_checkout_acp",
+    upstreamRevision: ACP_UPSTREAM_REVISION,
+    orderSchema: ACP_ORDER_SCHEMA_URL,
+    webhook: acpWebhook,
+    verification: acpVerification,
+    order: acpOrder,
+  },
+  mapping: {
+    contestedAdjustmentId: "adjustment-dispute-001",
+    lifecycleArtifactRef: "#/lifecycle",
+    extensionPlacement: "not_asserted",
+    nativeTransactionBinding: "not_available_in_pinned_order",
+    acpFacingExecutionState: "deferred_not_asserted",
+    contestedAmountBinding: "adjustment_amount_and_currency",
+  },
+  lifecycle: acpLifecycle,
+  expected: { valid: true, reasonCodes: [] },
+};
+const validAcpReasons = validateAcpExternalResolutionFixture(validAcpFixture, {
+  now: new Date(FIXED_VERIFICATION_TIME),
+  webhookSharedKey: ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
+});
+if (validAcpReasons.length > 0) throw new Error(`valid ACP vector failed: ${validAcpReasons.join(", ")}`);
+writeJson("acp/valid/contested-external-resolution.json", validAcpFixture);
+
+const resealAcpMutation = (fixture: AcpExternalResolutionFixture): void => {
+  const lifecycle = fixture.lifecycle;
+  const stableHandoffDigest = handoffDigest(lifecycle.handoff);
+  for (const disposition of lifecycle.dispositions) {
+    disposition.handoffDigest = stableHandoffDigest;
+    disposition.dispositionDigest = dispositionDigest(disposition);
+  }
+  const operative = lifecycle.dispositions.find(
+    (disposition) => disposition.dispositionId === lifecycle.operativeDispositionId,
+  );
+  for (const execution of lifecycle.executions) {
+    if (operative && execution.dispositionId === operative.dispositionId) {
+      execution.dispositionDigest = operative.dispositionDigest;
+    }
+  }
+};
+
+const acpNegativeVectors: Array<{
+  id: string;
+  fixture: AcpExternalResolutionFixture;
+}> = [
+  {
+    id: "webhook-signature-mismatch",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      const current = value.source.webhook.merchantSignature;
+      value.source.webhook.merchantSignature = `${current.slice(0, -1)}${current.endsWith("0") ? "1" : "0"}`;
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_webhook_signature_invalid"],
+      };
+      return value;
+    })(),
+  },
+  {
+    id: "contested-amount-mismatch",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      value.lifecycle.handoff.requestedRemedy.amountMinorUnits = "2400";
+      resealAcpMutation(value);
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_contested_amount_mismatch"],
+      };
+      return value;
+    })(),
+  },
+  {
+    id: "dispute-adjustment-without-bilateral-authority",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      value.lifecycle.handoff.authority.respondentAuthorityRef = "";
+      resealAcpMutation(value);
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_lifecycle_invalid", "acp_resolution_authority_missing"],
+      };
+      return value;
+    })(),
+  },
+  {
+    id: "disposition-as-execution",
+    fixture: (() => {
+      const value = clone(validAcpFixture);
+      const operative = value.lifecycle.dispositions.find(
+        (disposition) => disposition.dispositionId === value.lifecycle.operativeDispositionId,
+      )!;
+      value.lifecycle.executions[0]!.receiptProof = {
+        ...operative.signedArtifact,
+        verificationStatus: "passed",
+      };
+      value.expected = {
+        valid: false,
+        reasonCodes: ["acp_execution_not_separate", "acp_lifecycle_invalid"],
+      };
+      return value;
+    })(),
+  },
+];
+for (const vector of acpNegativeVectors) {
+  const reasons = validateAcpExternalResolutionFixture(vector.fixture, {
+    now: new Date(FIXED_VERIFICATION_TIME),
+    webhookSharedKey: ACP_SYNTHETIC_WEBHOOK_TEST_KEY,
+  });
+  if (JSON.stringify(reasons) !== JSON.stringify(vector.fixture.expected.reasonCodes)) {
+    throw new Error(`${vector.id} ACP vector produced ${reasons.join(", ")}`);
+  }
+  writeJson(`acp/negative/${vector.id}.json`, vector.fixture);
+}
+
 const opaqueMandate = "synthetic.ap2.mandate.bytes.must.remain.identical";
 writeJson("lcp/protocols/placement-input.json", {
   ref: { type: "sha256", value: `0x${termsSha256}` },
@@ -571,6 +764,14 @@ writeJson("core/manifest.json", {
     path: `../ucp/negative/${vector.id}.json`,
     expectedReasonCode: vector.expectedReasonCode,
   })),
+  acpTestVectors: {
+    valid: "../acp/valid/contested-external-resolution.json",
+    negatives: acpNegativeVectors.map((vector) => ({
+      id: vector.id,
+      path: `../acp/negative/${vector.id}.json`,
+      expectedReasonCodes: vector.fixture.expected.reasonCodes,
+    })),
+  },
   negatives: negativeIndex,
   identityInvariants: [
     "Verifier-local observation metadata is excluded from stable handoff identity.",
@@ -580,7 +781,14 @@ writeJson("core/manifest.json", {
     "A supplied verification report is frozen but its producer identity remains an application trust decision.",
     "RFC 8785 preserves distinct Unicode code-point sequences without NFC normalization.",
   ],
-  contentDigest: sha256Canonical({ lifecycle, negativeIndex, integraHandoff, integraNegativeVectors }),
+  contentDigest: sha256Canonical({
+    lifecycle,
+    negativeIndex,
+    integraHandoff,
+    integraNegativeVectors,
+    validAcpFixture,
+    acpNegativeVectors,
+  }),
 });
 
-console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, and ${ucpNegativeVectors.length} UCP negatives`);
+console.log(`built ${mutations.length} stable lifecycle negatives, ${integraNegativeVectors.length} Integra adapter negatives, two UCP paths, ${ucpNegativeVectors.length} UCP negatives, and ${acpNegativeVectors.length + 1} ACP resolution vectors`);

@@ -60,6 +60,26 @@ For post-settlement execution, the prior merchant-settlement evidence, dispositi
 
 The committed UCP negative vectors must reject swapped executor, receipt, and custody evidence with their declared reason codes. The fixture objects are neutral comparison shapes, not upstream- or vendor-native schemas.
 
+## ACP test-vector behavior
+
+A conforming ACP test-vector runner must preserve the source `Order` without adding extension fields and bind its order, checkout, and contested line-item identifiers into the external handoff.
+
+The source `dispute` adjustment must remain a contest signal rather than resolution authority.
+
+The runner must verify `Merchant-Signature` over `timestamp + "." + raw_body` with HMAC-SHA256 and reject signatures outside the 300-second replay window.
+
+The committed HMAC key is deterministic public test material, so this check proves native ACP webhook mechanics but not real merchant identity.
+
+It must reject a changed signature with `acp_webhook_signature_invalid`.
+
+The runner must reject a handoff that lacks separate bilateral authority with `acp_resolution_authority_missing`.
+
+It must reject reuse of the operative disposition artifact as execution evidence with `acp_execution_not_separate`.
+
+The source check is a manual subset over the ACP `Order` fields exercised by this vector. It records a pinned schema URL for review context but does not claim or perform full JSON Schema validation.
+
+The vector binds the dispute adjustment amount and currency to the requested, authorized, and executed remedy. The pinned ACP Order has no separate native payment-transaction identifier, so native transaction binding is explicitly unavailable. A later ACP-facing order update recording execution is deferred and not asserted by this vector.
+
 ## Reproduction
 
 ```bash
