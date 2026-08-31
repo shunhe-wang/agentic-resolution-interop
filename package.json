@@ -22,7 +22,7 @@
   "dependencies": {
     "@integraledger/lcp-discovery": "0.12.1",
     "@integraledger/lcp-evidence": "0.12.1",
-    "@integraledger/lcp-kernel": "0.12.1",
+    "@integraledger/lcp-kernel": "0.14.0",
     "@integraledger/lcp-placement-ap2": "0.12.1",
     "@integraledger/lcp-placement-ucp": "0.12.1",
     "@integraledger/lcp-placement-x402": "0.12.1",
