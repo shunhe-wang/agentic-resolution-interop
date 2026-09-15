@@ -20,19 +20,19 @@
     "check": "npm run build && npm test && npm run placements:check && npm run seal:check && npm run audit:public"
   },
   "dependencies": {
-    "@integraledger/lcp-discovery": "0.12.1",
-    "@integraledger/lcp-evidence": "0.12.1",
-    "@integraledger/lcp-kernel": "0.14.0",
+    "@integraledger/lcp-discovery": "0.16.0",
+    "@integraledger/lcp-evidence": "0.16.0",
+    "@integraledger/lcp-kernel": "0.16.0",
     "@integraledger/lcp-placement-ap2": "0.18.1",
     "@integraledger/lcp-placement-ucp": "0.18.1",
-    "@integraledger/lcp-placement-x402": "0.14.0",
-    "@integraledger/lcp-verify": "0.14.0",
+    "@integraledger/lcp-placement-x402": "0.16.0",
+    "@integraledger/lcp-verify": "0.16.0",
     "canonicalize": "5.0.0",
     "jose": "6.2.12"
   },
   "devDependencies": {
     "@types/node": "26.5.1",
-    "tsx": "4.23.12",
+    "tsx": "4.23.13",
     "typescript": "7.0.2"
   }
 }
