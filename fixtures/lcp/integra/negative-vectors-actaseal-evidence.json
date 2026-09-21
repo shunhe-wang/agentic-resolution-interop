@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "integra-resolution-handoff-negative-vectors-v1",
+  "baseInput": "valid/adapter-input-actaseal-evidence.json",
+  "note": "Vectors scoped to the ActaSeal disputed_agent_purchase evidence item (artifactId actaseal-disputed-purchase-receipt.json). See test/integra-adapter-actaseal-evidence.test.ts for the runnable versions and the full reasoning.",
+  "vectors": [
+    {
+      "id": "actaseal-evidence-malformed-digest",
+      "mutation": "Replace the ActaSeal evidence item's sha256 with a value that is not 64 lowercase hex characters.",
+      "expectedErrorCode": "handoff_artifact_invalid"
+    },
+    {
+      "id": "actaseal-evidence-duplicate-artifact-id",
+      "mutation": "Add a second includedArtifacts entry reusing the ActaSeal evidence item's artifactId.",
+      "expectedErrorCode": "handoff_artifact_invalid"
+    }
+  ],
+  "notExpressibleByThisSchema": [
+    {
+      "id": "terms-swapped",
+      "reason": "includedArtifacts entries are caller-declared and never re-hashed against real bytes by this adapter (see src/integra-adapter.ts's checkedArtifacts) -- the only sha256 cross-checks it performs are against a fixed set of OTHER declared digests already in the same document (draft.terms.digest, draft.policy.digest, claim/merchantResponse artifactRefs, legalContext digests), none of which the ActaSeal evidence item participates in. A swapped-terms scenario (the receipt's signed terms_hash disagreeing with the real terms bytes) is detected by lcp_actaseal_binding's verify_lcp_record (LCP_TERMS_HASH_MISMATCH), a layer this schema does not see into. Confirmed by construction in test/integra-adapter-actaseal-evidence.test.ts: an arbitrary well-formed sha256 on this evidence item is accepted, not rejected."
+    },
+    {
+      "id": "receipt-without-terms_hash",
+      "reason": "terms_hash is not a field this schema is aware of at all -- resolution-frozen-record-manifest-v1's evidence-item shape is artifactId/sha256/mediaType/source only. Presence or absence of terms_hash inside the referenced receipt.json is invisible to this schema; it can only be checked by something that opens the receipt (lcp_actaseal_binding, which reports LCP_TERMS_NOT_IN_SIGNED_RECEIPT for exactly this case)."
+    }
+  ]
+}

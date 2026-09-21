@@ -180,14 +180,29 @@
       "bytes": 2160
     },
     {
+      "path": "lcp/integra/negative-vectors-actaseal-evidence.json",
+      "sha256": "2ed2c8cf07e6551362e8d61328e557e593cc7130988fa88c74149520560be389",
+      "bytes": 2247
+    },
+    {
       "path": "lcp/integra/negative-vectors.json",
       "sha256": "db556a47550f0f0396a007de140fa591166f757f48b0ed203434a3e6fc204887",
       "bytes": 1603
     },
     {
+      "path": "lcp/integra/valid/adapter-input-actaseal-evidence.json",
+      "sha256": "347cb03cb6c814eb74034b5d80b627295788a266a797c1a3b4c9620c9a80553b",
+      "bytes": 5196
+    },
+    {
       "path": "lcp/integra/valid/adapter-input.json",
       "sha256": "5977e1b9534c216339b9e7cc441a3ff49a83f8422cfc94d64acc71f9ffa9b061",
       "bytes": 4841
+    },
+    {
+      "path": "lcp/integra/valid/resolution-handoff-actaseal-evidence.json",
+      "sha256": "0439c35a34294d09c6d40dcbbb15c62652edbe4e2832ba2d63b70c185ab26cf6",
+      "bytes": 6370
     },
     {
       "path": "lcp/integra/valid/resolution-handoff.json",
