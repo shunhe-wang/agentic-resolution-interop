@@ -2,6 +2,8 @@ import { sha256Canonical } from "./canonical.js";
 import { dispositionDigest, frozenRecordDigest, handoffDigest, validateLifecycle } from "./lifecycle.js";
 import type { ResolutionExecutionReceipt, ResolutionLifecycle } from "./types.js";
 
+const MINOR_UNITS = /^(0|[1-9][0-9]*)$/;
+
 export const UCP_RESOLUTION_EXTENSION = "ai.peoplescourt.shopping.dispute_resolution";
 export const UCP_RESOLUTION_EXTENSION_VERSION = "2026-08-23";
 export const UCP_RESOLUTION_SCHEMA_URL =
@@ -187,6 +189,17 @@ export function validateUcpPressureTestPath(
   } else if (
     !refundRequest ||
     !merchantApproval ||
+    merchantApproval.approved !== true ||
+    merchantApproval.approver !== custodyAtHandoff.custodyOwner ||
+    refundRequest.requestedFrom !== custodyAtHandoff.custodyOwner ||
+    refundRequest.currency !== execution?.currency ||
+    merchantApproval.currency !== execution?.currency ||
+    typeof refundRequest.amountMinorUnits !== "string" ||
+    typeof merchantApproval.amountMinorUnits !== "string" ||
+    !MINOR_UNITS.test(refundRequest.amountMinorUnits) ||
+    !MINOR_UNITS.test(merchantApproval.amountMinorUnits) ||
+    refundRequest.amountMinorUnits !== execution?.amountMinorUnits ||
+    merchantApproval.amountMinorUnits !== execution?.amountMinorUnits ||
     refundRequest.requestDigest !== digestWithoutField(refundRequest, "requestDigest") ||
     merchantApproval.approvalDigest !== digestWithoutField(merchantApproval, "approvalDigest") ||
     merchantApproval.requestId !== refundRequest.requestId ||

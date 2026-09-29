@@ -28,11 +28,14 @@ export function dispositionDigest(
 }
 
 function sameStrings(left: readonly string[], right: readonly string[]): boolean {
-  return [...left].sort().join("\n") === [...right].sort().join("\n");
+  if (left.length !== right.length) return false;
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((value, index) => value === sortedRight[index]);
 }
 
-function minorUnits(value: string): bigint | null {
-  if (!MINOR_UNITS.test(value)) return null;
+function minorUnits(value: unknown): bigint | null {
+  if (typeof value !== "string" || !MINOR_UNITS.test(value)) return null;
   try {
     return BigInt(value);
   } catch {
@@ -163,6 +166,9 @@ export function validateLifecycle(
   let latestExecution: ResolutionExecutionReceipt | null = null;
   if (operative) {
     const authorizedAmount = minorUnits(operative.authorizedRemedy.amountMinorUnits);
+    let completedAmount = 0n;
+    const completedIds = new Set<string>();
+    const completedNativeIdentities = new Set<string>();
     for (const execution of input.executions) {
       if (
         execution.dispositionId !== operative.dispositionId ||
@@ -182,6 +188,14 @@ export function validateLifecycle(
       ) reasons.add("execution_outside_authority");
 
       if (execution.status === "completed") {
+        if (executedAmount !== null) completedAmount += executedAmount;
+        if (completedIds.has(execution.executionId)) reasons.add("execution_identity_duplicate");
+        completedIds.add(execution.executionId);
+        if (execution.nativeTransactionReference) {
+          const nativeIdentity = JSON.stringify([execution.providerRef, execution.nativeTransactionReference]);
+          if (completedNativeIdentities.has(nativeIdentity)) reasons.add("execution_identity_duplicate");
+          completedNativeIdentities.add(nativeIdentity);
+        }
         if (
           !execution.nativeTransactionReference ||
           !execution.receiptProof ||
@@ -200,6 +214,9 @@ export function validateLifecycle(
       } else if (execution.status !== "pending" && !execution.failureCode) {
         reasons.add("execution_failure_code_missing");
       }
+    }
+    if (authorizedAmount !== null && completedAmount > authorizedAmount) {
+      reasons.add("execution_outside_authority");
     }
   }
 
