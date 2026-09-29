@@ -12,7 +12,18 @@ It rejects invalid UTF-8, oversized artifacts, duplicate JSON keys, excessive ne
 
 The lifecycle verifier rejects missing bilateral authority references, transaction or line-item drift, stale policy or terms, changed frozen records, excessive remedies, invalid supersession, and unproved or mismatched execution.
 
+The completed execution total cannot exceed the operative disposition’s authorized amount.
+Each completed result must have a unique execution id and a unique byte-exact provider/native-transaction tuple.
+Pending and failed observations do not consume that completed total; callers must normalize repeated completed snapshots, native batches, and reversals rather than relying on the validator to reconcile them.
+Minor-unit amounts must be canonical nonnegative decimal JSON strings; numeric JSON values are not coerced.
+
 The authorization verifier requires distinct claimant and respondent EdDSA signatures from pinned public keys.
+
+Disputed lines and principal/role tuples are compared structurally, preserving exact identifiers and cardinality.
+Authorization times must be finite and form a positive signed interval containing the verification time; issuance is inclusive and expiry is exclusive.
+
+The neutral UCP refund validator requires explicit approval from the merchant principal identified by the frozen custody evidence and exact request/approval/execution currency and JSON-string amount bindings in addition to digest and rail agreement.
+Native verification of the approval and receipt remains the integrating application’s responsibility.
 
 Applications still own signer authorization, revocation, key rotation, principal identity, native protocol verification, and legal validity.
 

@@ -30,6 +30,10 @@ It is pressure-test metadata outside the negotiated extension and does not prove
 
 Each path embeds its own frozen handoff, dispositions, execution evidence, and receipt. The escrow-held path freezes a neutral custody/hold proof and names a separate escrow-controller receipt. The post-settlement path freezes prior merchant-settlement evidence and then carries distinct disposition-bound refund-request, merchant-approval, and same-rail refund-receipt bindings.
 
+The post-settlement validator requires `approved: true`, with the approver and request recipient matching the merchant principal identified by the frozen custody evidence.
+Request, approval, and completed execution must have the same currency and canonical JSON-string minor-unit amount; numeric JSON amounts are rejected.
+These mechanical relationships supplement the digest bindings; they do not authenticate a native merchant approval.
+
 These are neutral fixture shapes, not invented Facet-native fields. The `westonMappingRequired` notes identify the exact evidence and receipt relationships an escrow or merchant-refund implementation must map without loss.
 
 ## Pressure-test fixtures

@@ -52,6 +52,13 @@ export class AuthorizationVerificationError extends Error {
   }
 }
 
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length !== right.length) return false;
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((value, index) => value === sortedRight[index]);
+}
+
 export async function verifyBilateralAuthorization(input: {
   jws: GeneralJws;
   trustedKeys: AuthorizationTrustKey[];
@@ -108,12 +115,24 @@ export async function verifyBilateralAuthorization(input: {
   if (claims.schemaVersion !== "resolution-authorization-v1") {
     throw new AuthorizationVerificationError("authorization_schema_invalid", "Unsupported authorization schema.");
   }
-  if (Date.parse(claims.issuedAt) > input.now.getTime() || Date.parse(claims.expiresAt) <= input.now.getTime()) {
+  const issuedAt = Date.parse(claims.issuedAt);
+  const expiresAt = Date.parse(claims.expiresAt);
+  const now = input.now.getTime();
+  if (
+    typeof claims.issuedAt !== "string" ||
+    typeof claims.expiresAt !== "string" ||
+    !Number.isFinite(issuedAt) ||
+    !Number.isFinite(expiresAt) ||
+    !Number.isFinite(now) ||
+    issuedAt >= expiresAt ||
+    issuedAt > now ||
+    expiresAt <= now
+  ) {
     throw new AuthorizationVerificationError("authorization_time_invalid", "Authorization is not active at the verification time.");
   }
 
   const expected = input.expected;
-  const exactLines = [...claims.transaction.disputedLineItemIds].sort().join("\n") === [...expected.disputedLineItemIds].sort().join("\n");
+  const exactLines = sameStrings(claims.transaction.disputedLineItemIds, expected.disputedLineItemIds);
   const bindingMatches =
     claims.transaction.transactionId === expected.transactionId &&
     claims.transaction.orderId === expected.orderId &&
@@ -130,10 +149,9 @@ export async function verifyBilateralAuthorization(input: {
 
   const signedPrincipals = input.trustedKeys
     .filter((key) => signerKids.includes(key.kid))
-    .map((key) => `${key.principalId}:${key.role}`)
-    .sort();
-  const claimedPrincipals = claims.parties.map((party) => `${party.principalId}:${party.role}`).sort();
-  if (signedPrincipals.join("\n") !== claimedPrincipals.join("\n")) {
+    .map((key) => JSON.stringify([key.principalId, key.role]));
+  const claimedPrincipals = claims.parties.map((party) => JSON.stringify([party.principalId, party.role]));
+  if (!sameStrings(signedPrincipals, claimedPrincipals)) {
     throw new AuthorizationVerificationError("authorization_principal_mismatch", "Signers do not match the appointed principals.");
   }
 

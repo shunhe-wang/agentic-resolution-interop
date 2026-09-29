@@ -146,6 +146,7 @@ export type LifecycleReasonCode =
   | "supersession_cycle"
   | "supersession_fork"
   | "execution_disposition_mismatch"
+  | "execution_identity_duplicate"
   | "execution_outside_authority"
   | "execution_receipt_missing"
   | "execution_failure_code_missing"

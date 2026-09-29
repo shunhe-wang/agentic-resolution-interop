@@ -10,7 +10,7 @@ A conforming core runner must:
 
 1. compute stable JSON identities with RFC 8785 and SHA-256;
 2. bind the handoff to the exact transaction, order, disputed line items, policy, terms, authorities, artifacts, and native proof reference;
-3. enforce the requested and authorized remedy ceilings in canonical minor units;
+3. enforce the requested and authorized remedy ceilings in canonical minor units, including the sum of completed executions for the operative disposition;
 4. retain superseded dispositions and reject cycles or forks;
 5. select no superseded or vacated disposition as operative;
 6. require a separate receipt for completed execution;
@@ -20,6 +20,17 @@ A conforming core runner must:
 An implementation may produce additional reason codes for a vector.
 
 It must include the declared reason code.
+
+Completed executions require unique execution ids and unique byte-exact `[providerRef, nativeTransactionReference]` tuples.
+Duplicate completed identities produce `execution_identity_duplicate`; the runner does not silently deduplicate results.
+Pending or failed observations may share an identity with a completed result and do not contribute to the completed total, but every observation remains subject to the per-result authority checks.
+Native adapters must normalize batches or repeated completed snapshots before supplying this lifecycle.
+Reconciliation across superseding dispositions and reversals is outside this corpus.
+
+Minor-unit amounts must be canonical nonnegative decimal JSON strings; numeric JSON values are rejected rather than coerced.
+
+Disputed-line arrays preserve exact string identity and cardinality while ignoring ordering.
+Delimiter characters inside an identifier do not create additional identifiers.
 
 ## LCP profile behavior
 
@@ -42,6 +53,10 @@ A conforming Integra resolver-handoff adapter must:
 
 Report-producer authentication and live-port execution are preconditions, not claims of adapter conformance.
 
+The bilateral authorization verifier binds exact principal/role tuples and exact disputed-line arrays without delimiter-based encodings.
+Signed issuance, expiry, and verification times must be finite, with `issuedAt < expiresAt` and `issuedAt <= now < expiresAt`.
+These checks do not establish signer identity policy, revocation, or legal validity.
+
 ## Official placement behavior
 
 The committed placement outputs are reproduced by Integra packages `0.12.1` under Node.js 24.
@@ -57,6 +72,11 @@ A conforming UCP pressure-test runner must verify that the funds-state evidence 
 For escrow-held execution, the named escrow controller and its receipt must remain distinct from a merchant-refund executor and receipt.
 
 For post-settlement execution, the prior merchant-settlement evidence, disposition-bound refund request, merchant approval, and same-rail receipt must remain separately identifiable and digest-linked.
+
+The merchant approval must explicitly say `approved: true`.
+Its approver and the request recipient must equal the merchant principal identified by the frozen custody evidence.
+Request, approval, and execution must have identical currency and canonical JSON-string minor-unit amounts.
+Digest agreement alone does not establish these relationships or authenticate the merchant approval.
 
 The committed UCP negative vectors must reject swapped executor, receipt, and custody evidence with their declared reason codes. The fixture objects are neutral comparison shapes, not upstream- or vendor-native schemas.
 
